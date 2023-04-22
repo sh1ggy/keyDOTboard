@@ -5,9 +5,9 @@
 
 mod serial;
 use std::time::{self, Duration};
+use tokio::runtime::Runtime;
 
-use std::{io, num::ParseIntError, thread};
-struct Card {
+use std::{io, num::ParseIntError, thread};struct Card {
     name: String,
     password: String,
     rfid: String,
