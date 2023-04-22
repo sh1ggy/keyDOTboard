@@ -1,6 +1,8 @@
 
 use core::time::Duration;
-pub fn read_rfid() {
+
+use tauri::{AppHandle};
+pub fn read_rfid(app: AppHandle) {
     const PORT_PATH: &str = "COM4";
     const BAUD_RATE:u32 = 115_200;
     let port = serialport::new(PORT_PATH, BAUD_RATE)

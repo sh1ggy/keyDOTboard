@@ -4,9 +4,9 @@
 )]
 
 mod serial;
-use std::time::Duration;
+use std::time::{Duration, self};
 use tokio::runtime::Runtime;
-use std::{io, num::ParseIntError};
+use std::{io, num::ParseIntError, thread};
 struct Card {
     name: String,
     password: String,
@@ -15,22 +15,33 @@ struct Card {
 
 #[tauri::command]
 async fn save_card(value: Card) -> String {
-    tokio::time::sleep(Duration::from_secs(1)).await;
+    // tokio::time::sleep(Duration::from_secs(1)).await;
 
     return "gay".to_string();
 }
 
-fn main() {
-    serial::read_rfid();
 
+use tauri::{App, Manager, AppHandle};
+fn main() {
     tauri::Builder::default()
+        .setup(|app| {
+          setup(app)
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+fn setup(app: &App) -> Result<(), Box<(dyn std::error::Error )>>{
+    // Not entirely sure, but perhaps you could omit that error type
+    let app_handle = app.handle();
 
-pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
-    (0..s.len())
-        .step_by(2)
-        .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
-        .collect()
+    thread::spawn(move || {
+        // serial::read_rfid(app_handle);
+        test_loop(app_handle);
+    });
+    Ok(())
+}
+
+fn test_loop(app: AppHandle) {
+    let millis_100 = time::Duration::from_millis(100);
+    thread::sleep(millis_100);
 }
