@@ -4,6 +4,8 @@ import wlogo from './assets/wlogo.svg'
 import deleteIcon from './assets/delete.svg'
 import saveIcon from './assets/save.svg'
 import { invoke } from '@tauri-apps/api/tauri'
+import { Command } from '@tauri-apps/api/shell'
+
 
 interface RFIDPayload {
   uid: string;
@@ -54,10 +56,6 @@ function App() {
       console.log(e.payload);
       setError(e.payload)
     })
-    setRfidPayload({
-      uid: "test",
-    })
-    // const setupPage = async () => {
 
     const init = async () => {
       const cards = await invoke('get_cards');
@@ -106,8 +104,22 @@ function App() {
       tempCards.splice(i, 1);
       showToast("Card deleted");
       return tempCards;
-
     })
+  }
+
+  const saveCard = (i: number) => {
+    // await (new Command('sleep', ['ping -n 5 127.0.0.1']));
+    setCards((prev) => {
+      const editCard: Card = {
+        name: prev[i].name,
+        password: password,
+        rfid: prev[i].rfid,
+      }
+      const tempCards = [...prev];
+      tempCards.splice(i, 1, editCard);
+      showToast("Card saved!")
+      return tempCards;
+    });
   }
   return (
     <>
@@ -136,7 +148,7 @@ function App() {
 
       <div className={'flex flex-col h-screen w-full items-center bg-[#292828]'}>
         <div className='flex flex-col w-screen p-6 items-center bg-[#5D616C]'>
-          <code className='bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>UID:</strong>{rfidPayload.uid}</code>
+          <code className='bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>UID: </strong>{rfidPayload.uid}</code>
           <input
             type="text"
             placeholder="enter name..."
@@ -165,11 +177,11 @@ function App() {
                     <div className='flex flex-col items-start'>
                       <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{c.name}</h5>
                       <p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">{c.rfid}</p>
-                      <input value={password} type="password" className="bg-white text-dim-gray p-3 mb-3 rounded-lg font-normal text-gray-700 dark:text-gray-400" />
+                      <input value={password} type="password" onChange={e => { setPassword(e.target.value) }} className="bg-white text-dim-gray p-3 mb-3 rounded-lg font-normal text-gray-700 dark:text-gray-400" />
                     </div>
                     <div className='flex flex-row items-end'>
                       <button className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                        <img className='object-contain w-6 h-6 items-center' src={saveIcon} />
+                        <img onClick={() => saveCard(i)} className='object-contain w-6 h-6 items-center' src={saveIcon} />
                       </button>
                       <button onClick={() => deleteCard(i)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                         <img className='object-contain w-6 h-6 items-center' src={deleteIcon} />
