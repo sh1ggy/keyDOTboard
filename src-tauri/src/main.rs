@@ -4,7 +4,7 @@
 )]
 
 mod serial;
-use std::time::{Duration, self};
+use std::time::{self, Duration};
 
 use std::{io, num::ParseIntError, thread};
 struct Card {
@@ -20,17 +20,15 @@ async fn save_card(value: Card) -> String {
     return "gay".to_string();
 }
 
-
-use tauri::{App, Manager, AppHandle};
+use tauri::{App, AppHandle, Manager};
 fn main() {
     tauri::Builder::default()
-        .setup(|app| {
-          setup(app)
-        })
+        .setup(|app| setup(app))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-fn setup(app: &App) -> Result<(), Box<(dyn std::error::Error )>>{
+// Return type says the error can basically fill any type
+fn setup(app: &App) -> Result<(), Box<(dyn std::error::Error)>> {
     // Not entirely sure, but perhaps you could omit that error type
     let app_handle = app.handle();
 
@@ -43,5 +41,11 @@ fn setup(app: &App) -> Result<(), Box<(dyn std::error::Error )>>{
 
 fn test_loop(app: AppHandle) {
     let millis_100 = time::Duration::from_millis(100);
-    thread::sleep(millis_100);
+    let mut counter = 0;
+    loop {
+        thread::sleep(millis_100);
+        let payload = format!("Hey man {}", counter);
+        app.emit_all("rfid", payload);
+        counter += 1;
+    }
 }
