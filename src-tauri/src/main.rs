@@ -4,8 +4,22 @@
 )]
 
 mod serial;
+use std::time::Duration;
 
 use std::{io, num::ParseIntError};
+struct Card {
+    name: String,
+    password: String,
+    rfid: String,
+}
+
+#[tauri::command]
+async fn save_card(value: Card) -> String {
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    return "gay".to_string();
+}
+
 fn main() {
     serial::read_rfid();
 
