@@ -5,6 +5,8 @@ import deleteIcon from './assets/delete.svg'
 import saveIcon from './assets/save.svg'
 import editIcon from './assets/edit.svg'
 import dismissIcon from './assets/dismiss.svg'
+import eyeOffIcon from './assets/eyeOff.svg'
+import eyeOnIcon from './assets/eyeOn.svg'
 import { invoke } from '@tauri-apps/api/tauri'
 import { reflashPartition } from './services'
 import { Command } from '@tauri-apps/api/shell'
@@ -52,7 +54,10 @@ function App() {
   const [editView, setEditView] = useState(false);
   const [index, setIndex] = useState(0);
   // Instead we are going to only edit the card (dont display the password field)
-  const [editPassword, setEditPassword] = useState("")
+  const [editPassword, setEditPassword] = useState("");
+  const [showCreatePassword, setCreateShowPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
+
 
   const [activateToast, setActivateToast] = useState(false);
   const [toastText, setToastText] = useState("");
@@ -161,7 +166,7 @@ function App() {
       const tempCards = [...prev];
       tempCards.splice(i, 1, editCard);
       showToast("Card saved!");
-      setEditView(false); 
+      setEditView(false);
       return tempCards;
     });
   }
@@ -197,18 +202,32 @@ function App() {
           <input
             type="text"
             placeholder="enter name..."
-            className="input w-full max-w-xs bg-white text-dim-gray p-3 m-3 rounded-lg"
+            className="input bg-white text-dim-gray py-3 px-9 m-3 rounded-lg"
             onChange={e => { setCreateName(e.target.value) }}
           />
-          <input
-            type="password"
-            placeholder="enter password..."
-            className="input w-full max-w-xs bg-white text-dim-gray p-3 m-3 rounded-lg"
-            onChange={e => { setCreatePassword(e.target.value) }}
-          />
+          <div className='flex flex-row items-center'>
+            <input
+              type={`${showCreatePassword ? 'text' : 'password'}`}
+              placeholder="enter password..."
+              className="input w-full max-w-xs bg-white text-dim-gray p-3 rounded-l-lg"
+              onChange={e => { setCreatePassword(e.target.value) }}
+            />
+            <button
+              onClick={() => {
+                setCreateShowPassword(!showCreatePassword);
+              }}
+              className="inline-flex text-sm font-medium text-center h-full items-center px-3 text-white rounded-r-lg bg-white">
+              {showCreatePassword ?
+                <img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
+                :
+                <img className='object-contain w-6 h-6 items-center' src={eyeOffIcon} />
+              }
+            </button>
+          </div>
           <label htmlFor="create-card-modal" className="btn btn-ghost">
             <button className="text-gray text-center p-3 m-3 bg-[#292828] rounded-lg text-[white]" onClick={createCard}>Create Card</button>
           </label>
+
         </div>
         <div className='flex flex-row flex-wrap items-center'>
           {editView ?
@@ -217,12 +236,25 @@ function App() {
               <div className="justify-center text-white p-6 bg-[#5D616C] rounded-lg ">
                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{cards[index].name}</h5>
                 <p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">{cards[index].rfid}</p>
-                <input
-                  type="password"
-                  placeholder="enter password..."
-                  className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 mb-3 rounded-lg"
-                  onChange={e => { setCreatePassword(e.target.value) }}
-                />                
+                <div className='flex flex-row items-center pb-3'>
+                  <input
+                    type={`${showEditPassword ? 'text' : 'password'}`}
+                    placeholder="enter password..."
+                    className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 rounded-l-lg"
+                    onChange={e => { setEditPassword(e.target.value) }}
+                  />
+                  <button
+                    onClick={() => {
+                      setShowEditPassword(!showEditPassword);
+                    }}
+                    className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white py-3">
+                    {showEditPassword ?
+                      <img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
+                      :
+                      <img className='object-contain w-6 h-6 items-center' src={eyeOffIcon} />
+                    }
+                  </button>
+                </div>
                 <button onClick={() => setEditView(false)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                   <img className='object-contain w-6 h-6 items-center' src={dismissIcon} />
                 </button>
