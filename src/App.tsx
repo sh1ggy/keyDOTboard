@@ -3,6 +3,8 @@ import { listen } from '@tauri-apps/api/event'
 import wlogo from './assets/wlogo.svg'
 import deleteIcon from './assets/delete.svg'
 import saveIcon from './assets/save.svg'
+import editIcon from './assets/edit.svg'
+import dismissIcon from './assets/dismiss.svg'
 import { invoke } from '@tauri-apps/api/tauri'
 import { reflashPartition } from './services'
 import { Command } from '@tauri-apps/api/shell'
@@ -44,11 +46,13 @@ function App() {
   const [rfid, setRfid] = useState<string | null>(null);
   const [cards, setCards] = useState<Card[]>(CARDS_SEED);
 
+
   const [createName, setCreateName] = useState("");
   const [createPassword, setCreatePassword] = useState("");
-
+  const [editView, setEditView] = useState(false);
+  const [index, setIndex] = useState(0);
   // Instead we are going to only edit the card (dont display the password field)
-  // const [password, setPassword] = useState("")
+  const [editPassword, setEditPassword] = useState("")
 
   const [activateToast, setActivateToast] = useState(false);
   const [toastText, setToastText] = useState("");
@@ -97,7 +101,7 @@ function App() {
 
   const createCard = async () => {
     if (rfid == null) {
-      showToast("No Rfid detected yet");
+      showToast("No RFID detected yet");
       return;
     }
     if (createName == "") {
@@ -141,25 +145,26 @@ function App() {
   }
 
   // TODO: retry flash button
-  
+
   // TODO: Consider structural change to only be able to edit one card only (maybe modal/edit screen) 
   // in order to not arrive at a race condition of trying to save multiple cards at once
   // Lock access to mutating / clicking edit / deleting any cards when commiting a transaction 
-  // const saveCard = (i: number) => {
-  //   // await (new Command('sleep', ['ping -n 5 127.0.0.1']));
-  //   setCards((prev) => {
-  //     const editCard: Card = {
-  //       name: prev[i].name,
-  //       // Is this the only field that is changing?
-  //       password: password,
-  //       rfid: prev[i].rfid,
-  //     }
-  //     const tempCards = [...prev];
-  //     tempCards.splice(i, 1, editCard);
-  //     showToast("Card saved!")
-  //     return tempCards;
-  //   });
-  // }
+  const saveCard = (i: number) => {
+    // await (new Command('sleep', ['ping -n 5 127.0.0.1']));
+    setCards((prev) => {
+      const editCard: Card = {
+        name: prev[i].name,
+        // Is this the only field that is changing?
+        password: editPassword,
+        rfid: prev[i].rfid,
+      }
+      const tempCards = [...prev];
+      tempCards.splice(i, 1, editCard);
+      showToast("Card saved!");
+      setEditView(false); 
+      return tempCards;
+    });
+  }
 
   return (
     <>
@@ -206,7 +211,27 @@ function App() {
           </label>
         </div>
         <div className='flex flex-row flex-wrap items-center'>
-          {
+          {editView ?
+            <div className='flex flex-col mt-24 mx-6'>
+              <div className="justify-center text-white text-xl p-6  bg-[#8B89AC] rounded-lg" >Editing Card</div>
+              <div className="justify-center text-white p-6 bg-[#5D616C] rounded-lg ">
+                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{cards[index].name}</h5>
+                <p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">{cards[index].rfid}</p>
+                <input
+                  type="password"
+                  placeholder="enter password..."
+                  className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 mb-3 rounded-lg"
+                  onChange={e => { setCreatePassword(e.target.value) }}
+                />                
+                <button onClick={() => setEditView(false)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                  <img className='object-contain w-6 h-6 items-center' src={dismissIcon} />
+                </button>
+                <button onClick={() => saveCard(index)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                  <img className='object-contain w-6 h-6 items-center' src={saveIcon} />
+                </button>
+              </div>
+            </div>
+            :
             cards.length == 0 ?
               <div className=" py-24 justify-center w-full h-full rounded-lg text-white">No cards!
               </div>
@@ -222,7 +247,12 @@ function App() {
                     </div>
                     <div className='flex flex-row items-end'>
                       <button className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                        {/* <img onClick={() => saveCard(i)} className='object-contain w-6 h-6 items-center' src={saveIcon} /> */}
+                        <img
+                          onClick={() => {
+                            setEditView(true);
+                            setIndex(i);
+                          }}
+                          className='object-contain w-6 h-6 items-center' src={editIcon} />
                       </button>
                       <button onClick={() => deleteCard(i)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                         <img className='object-contain w-6 h-6 items-center' src={deleteIcon} />
