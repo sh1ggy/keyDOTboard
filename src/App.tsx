@@ -85,7 +85,6 @@ function App() {
 
     // 
     const init = async () => {
-      const listenServer = await invoke('start_listen_server', { "port": selectedPort });
 
       // Getting cards from local storage
       const localCards = localStorage.getItem("savedCards");
@@ -225,14 +224,14 @@ function App() {
   const clearData = async () => {
   }
 
-  const [ports, setPorts] = useState<string[]>([]);
-  const [selectedPort, setSelectedPort] = useState<string | null>("null");
+  // const [ports, setPorts] = useState<string[]>([]);
+  const [selectedPort, setSelectedPort] = useState<string | null>(null);
 
-  const getPortsValue = async () => {
-    const getPortsValue = await getPorts();
-    setPorts(getPortsValue);
-    showToast("Got ports!");
-  }
+  // const getPortsValue = async () => {
+  //   const getPortsValue = await getPorts();
+  //   setPorts(getPortsValue);
+  //   showToast("Got ports!");
+  // }
 
   return (
     <>
@@ -240,7 +239,7 @@ function App() {
       {/* NAVBAR */}
       <ul className="flex bg-[#8C89AC] py-3 z-10 items-center">
         <li className="text-center flex-1">
-          <button className="text-gray text-center p-3 bg-[#292828] rounded-lg text-[white]" onClick={getPortsValue}>Get Ports</button>
+          <button className="text-gray text-center p-3 bg-[#292828] rounded-lg text-[white]">Get Ports</button>
         </li>
         <li className="flex-1 mr-2">
           <div className="flex-1 flex justify-center mr-auto ml-auto navbar-center">
@@ -262,7 +261,7 @@ function App() {
       </div>
 
       {selectedPort == null ?
-        <PortSelection ports={ports} selectedPort={selectedPort} setSelectedPort={setSelectedPort} setToast={showToast} />
+        <PortSelection selectedPort={selectedPort} setSelectedPort={setSelectedPort} setToast={showToast} />
         :
         <div className={'flex flex-col w-full items-center min-h-screen pb-24 bg-[#292828] overflow-hidden'}>
           {activeView ?
