@@ -222,7 +222,7 @@ function App() {
   }
 
   const clearData = async () => {
-    const clearData = await invoke('start_listen_server', { "port": selectedPort });
+    // const clearData = await invoke('start_listen_server', { "port": selectedPort });
   }
 
   const syncData = async () => {
