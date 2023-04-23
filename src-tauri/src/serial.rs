@@ -79,7 +79,7 @@ pub fn read_rfid(app: AppHandle, port_path: String) {
         Err(e) => {
             // Emit error to client
             eprintln!("Failed to open \"{}\". Error: {}", port_path, e);
-            ::std::process::exit(1);
+            // ::std::process::exit(1);
         }
     }
 }
