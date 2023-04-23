@@ -94,7 +94,9 @@ function App() {
       console.log(cards);
     }
 
-    init();
+    // init();
+    setTimeout(() => init(), 2000);
+
     // setCards(cards);
 
     return (() => {
@@ -103,13 +105,16 @@ function App() {
       unlistenError;
     })
   }, []);
+  // const showToast = useCallback((toastMessage: string) => {
 
-  const saveCards = async () => {
+  const saveCards = useCallback( async () => {
+    console.log(JSON.stringify(cards));
     localStorage.setItem("savedCards", JSON.stringify(cards));
-  }
-  useEffect(() => {
-    saveCards
   }, [cards])
+  useEffect(() => {
+    console.log(JSON.stringify(cards));
+    saveCards();
+  },[cards])
 
   useEffect(() => {
     console.log(`Received new rfid ${rfid}`);
@@ -182,6 +187,7 @@ function App() {
           return prev;
         }
       }
+      
       const tempCards = [...prev, newCard];
       return tempCards;
     });
