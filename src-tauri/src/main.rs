@@ -59,7 +59,7 @@ fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
 #[tauri::command]
 async fn start_listen_server(window: tauri::Window, port: String) -> Result<(), String> {
     
-    let app = window.app_handle();
+    let app = window.app_handle().clone();
 
     thread::spawn(move || {
         serial::read_rfid(app, port);

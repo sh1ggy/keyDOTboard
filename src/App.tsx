@@ -19,6 +19,7 @@ import { BaseDirectory, createDir, writeFile } from '@tauri-apps/api/fs';
 //   error?: string;
 // }
 
+
 export interface Card {
   name: string;
   password: string;
@@ -28,6 +29,7 @@ export interface Card {
 interface error {
   title: string;
   message: string;
+
 }
 
 const CARDS_SEED: Card[] = [{
