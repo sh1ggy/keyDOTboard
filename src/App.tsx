@@ -85,11 +85,11 @@ function App() {
 
     // 
     const init = async () => {
-
       // Getting cards from local storage
       const localCards = localStorage.getItem("savedCards");
       if (!localCards) setCards([]);
       else setCards(JSON.parse(localCards));
+      console.log(cards);
     }
 
     init();
@@ -102,7 +102,7 @@ function App() {
     })
   }, []);
 
-  const saveCards = async (filename: string) => {
+  const saveCards = async () => {
     localStorage.setItem("savedCards", JSON.stringify(cards));
   }
   useEffect(() => {
