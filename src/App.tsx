@@ -3,8 +3,7 @@ import { listen } from '@tauri-apps/api/event'
 import wlogo from './assets/wlogo.svg'
 import deleteIcon from './assets/delete.svg'
 import saveIcon from './assets/save.svg'
-import { invoke } from '@tauri-apps/api/tauri'
-import { reflashPartition } from './services'
+import { getPorts, reflashPartition } from './services'
 import { Command } from '@tauri-apps/api/shell'
 
 
@@ -161,6 +160,12 @@ function App() {
   //   });
   // }
 
+  const clearData = () => {
+    // For now this is a test function
+    console.log("ports", getPorts());
+
+  }
+
   return (
     <>
       {/* NAVBAR */}
@@ -173,7 +178,7 @@ function App() {
           </div>
         </li>
         <li className="text-center flex-1">
-          <button className="text-gray text-center p-3 bg-[#292828] rounded-lg text-[white]">Clear Data</button>
+          <button className="text-gray text-center p-3 bg-[#292828] rounded-lg text-[white]" onClick={clearData}>Clear Data</button>
         </li>
       </ul>
 

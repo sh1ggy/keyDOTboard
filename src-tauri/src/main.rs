@@ -6,23 +6,36 @@
 mod serial;
 use std::time::{self, Duration};
 use tokio::runtime::Runtime;
+use std::{io, num::ParseIntError, thread};
 
-use std::{io, num::ParseIntError, thread};struct Card {
-    name: String,
-    password: String,
-    rfid: String,
-}
+// Need to implement serde::deserialize trait on this to use in command
+// struct Card {
+//     name: String,
+//     password: String,
+//     rfid: String,
+// }
+
+// #[tauri::command]
+// async fn save_card(value: Card) -> String {
+//     // tokio::time::sleep(Duration::from_secs(1)).await;
+
+//     return "gay".to_string();
+// }
 
 #[tauri::command]
-async fn save_card(value: Card) -> String {
-    // tokio::time::sleep(Duration::from_secs(1)).await;
-
-    return "gay".to_string();
+fn get_ports() -> Vec<String> {
+    let ports = serialport::available_ports().expect("No ports found!");
+    ports.iter().map(|p| p.port_name.clone()).collect()
+    // for p in ports {
+    //     println!("{}", p.port_name);
+    // }
 }
 
 use tauri::{App, AppHandle, Manager};
 fn main() {
     tauri::Builder::default()
+        // .invoke_handler(tauri::generate_handler![save_card, get_ports])
+        .invoke_handler(tauri::generate_handler![get_ports])
         .setup(|app| setup(app))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
