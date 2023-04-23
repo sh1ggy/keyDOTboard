@@ -1,12 +1,11 @@
-
 use core::time::Duration;
 
-use tauri::{AppHandle, api::process};
+use tauri::{api::process, AppHandle, Manager};
 pub fn read_rfid(app: AppHandle, port_path: String) {
-// pub fn read_rfid() {
+    // pub fn read_rfid() {
     // let app = process::app_handle().expect("failed to get app handle");
     // const PORT_PATH: &str = "COM4";
-    const BAUD_RATE:u32 = 115_200;
+    const BAUD_RATE: u32 = 115_200;
     let port = serialport::new(&port_path, BAUD_RATE)
         .timeout(Duration::from_millis(10))
         .open();
@@ -67,7 +66,11 @@ pub fn read_rfid(app: AppHandle, port_path: String) {
                         .collect();
                     let maybe_hex = hex::decode(&hex_string_trimmed);
                     match maybe_hex {
-                        Ok(hex_value) => println!("WORKING!!!: {}", hex::encode(&hex_value)),
+                        Ok(hex_value) => {
+                            let back_toString = hex::encode(&hex_value);
+                            app.emit_all("rfid", &back_toString);
+                            println!("WORKING!!!: {}",&back_toString )
+                        }
                         Err(err) => println!("Unreadable Hex {}: {}", &hex_string_trimmed, err),
                     }
                 }
