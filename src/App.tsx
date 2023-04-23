@@ -126,10 +126,10 @@ function App() {
   }, [toastText])
 
   const createCard = async () => {
-    // if (rfid == null) {
-    //   showToast("No RFID detected yet");
-    //   return;
-    // }
+    if (rfid == null) {
+      showToast("No RFID detected yet");
+      return;
+    }
     if (createName == "") {
       showToast("Enter name");
       return
@@ -142,7 +142,7 @@ function App() {
     const newCard: Card = {
       name: createName,
       password: createPassword,
-      rfid: "asdaopj",
+      rfid: rfid,
     }
     let exitEarly = false;
     setCards((prev) => {
