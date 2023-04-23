@@ -19,6 +19,7 @@ import { BaseDirectory, createDir, writeFile } from '@tauri-apps/api/fs';
 //   error?: string;
 // }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export interface Card {
   name: string;
@@ -49,7 +50,8 @@ function App() {
   });
 
   const [rfid, setRfid] = useState<string | null>(null);
-  const [cards, setCards] = useState<Card[]>(CARDS_SEED);
+  // const [cards, setCards] = useState<Card[]>(CARDS_SEED);
+  const [cards, setCards] = useState<Card[]>([]);
 
 
   const [createName, setCreateName] = useState("");
@@ -87,15 +89,24 @@ function App() {
 
     // 
     const init = async () => {
+      await sleep(100);
       // Getting cards from local storage
       const localCards = localStorage.getItem("savedCards");
-      if (!localCards) setCards([]);
-      else setCards(JSON.parse(localCards));
+      if (localCards == null) {
+        console.log(" Starting from the bottom");
+
+        setCards([]);
+      }
+      else {
+        const gottenCards = JSON.parse(localCards);
+        console.log({ gottenCards });
+
+        setCards(gottenCards);
+      }
       console.log(cards);
     }
 
-    // init();
-    setTimeout(() => init(), 2000);
+    init();
 
     // setCards(cards);
 
@@ -107,14 +118,14 @@ function App() {
   }, []);
   // const showToast = useCallback((toastMessage: string) => {
 
-  const saveCards = useCallback( async () => {
+  const saveCards = useCallback(async () => {
     console.log(JSON.stringify(cards));
     localStorage.setItem("savedCards", JSON.stringify(cards));
   }, [cards])
   useEffect(() => {
     console.log(JSON.stringify(cards));
     saveCards();
-  },[cards])
+  }, [cards])
 
   useEffect(() => {
     console.log(`Received new rfid ${rfid}`);
@@ -187,7 +198,7 @@ function App() {
           return prev;
         }
       }
-      
+
       const tempCards = [...prev, newCard];
       return tempCards;
     });
@@ -234,7 +245,32 @@ function App() {
   }
 
   const syncData = async () => {
-    const syncData = await invoke('save_cards_to_csv', { "port": selectedPort });
+    // Once this is done
+    const syncData = await invoke('save_cards_to_csv_command', { cards, port: selectedPort });
+    await sleep(200);
+    const binaryCommand = new Command(String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe`,
+      [String.raw`C:\Users\anhad\esp\esp-idf\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py`, `generate`, `data.csv`, `data.bin`, `0x5000`]);
+
+    const binaryChild = await binaryCommand.spawn();
+    const uploadCommand = new Command(
+      String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
+      [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
+
+    binaryCommand.stdout.on('data', line => console.log(`binarycommand stdout: "${line}"`));
+    binaryCommand.stderr.on('data', line => console.log(`binary command stderr: "${line}"`));
+
+    uploadCommand.stdout.on('data', line => console.log(`uploadcommand stdout: "${line}"`));
+    uploadCommand.stderr.on('data', line => console.log(`uplaodcommand stderr: "${line}"`));
+
+    binaryCommand.on('close', () => {
+      uploadCommand.spawn();
+      console.log("Done");
+    });
+
+    uploadCommand.on('close', () => {
+      showToast("Finished saving to disk!");
+    })
+
   }
 
   // const [ports, setPorts] = useState<string[]>([]);

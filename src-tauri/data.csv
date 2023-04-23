@@ -1,0 +1,4 @@
+key,type,encoding,value
+name0,data,string,new 
+pass0,data,string,test
+uids,data,hex2bin,632df01b

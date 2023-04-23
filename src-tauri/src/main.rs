@@ -24,7 +24,8 @@ struct State{
 }
 
 fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
-    let mut wtr = csv::Writer::from_writer(io::stdout());
+    // let mut wtr = csv::Writer::from_writer(io::stdout());
+    let mut wtr = csv::Writer::from_path("./data.csv")?;
     wtr.write_record(&["key", "type", "encoding", "value"])?;
 
     let mut uid_buffer = String::new();
@@ -39,6 +40,12 @@ fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
         let key = format!("name{}", i.to_string());
         let card_name = &card.name;
         let record = [&key, "data", "string", card_name];
+        wtr.write_record(record)?;
+
+
+        let key = format!("pass{}", i.to_string());
+        let card_pass = &card.password;
+        let record = [&key, "data", "string", card_pass];
         wtr.write_record(record)?;
 
         // let hex_string_trimmed: String = hex_string
@@ -57,6 +64,18 @@ fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
 }
 
 #[tauri::command]
+// We cant use this because dyn Error doesnt implement Serialize but string does :)
+// async fn save_card(value: String) -> Result<(), Box<dyn Error>> {
+async fn save_cards_to_csv_command(cards: Vec<Card>, port: String) -> Result<(), String> {
+    let test = save_cards_to_csv(cards);
+    if let Err(err) = test {
+        println!("Could not csv: {}", err.to_string());
+        return Err(err.to_string());
+    }
+    Ok(())
+}
+
+#[tauri::command]
 async fn start_listen_server(window: tauri::Window, port: String) -> Result<(), String> {
     
     let app = window.app_handle().clone();
@@ -65,19 +84,8 @@ async fn start_listen_server(window: tauri::Window, port: String) -> Result<(), 
         serial::read_rfid(app, port);
     });
     Ok(())
-
 }
 
-#[tauri::command]
-// We cant use this because dyn Error doesnt implement Serialize but string does :)
-// async fn save_card(value: String) -> Result<(), Box<dyn Error>> {
-async fn save_cards_to_csv_command(cards: Vec<Card>) -> Result<(), String> {
-    let test = save_cards_to_csv(cards);
-    if let Err(err) = test {
-        return Err(err.to_string());
-    }
-    Ok(())
-}
 
 #[tauri::command]
 fn get_ports() -> Vec<String> {
