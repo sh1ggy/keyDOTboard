@@ -19,6 +19,10 @@ struct Card {
     rfid: String,
 }
 
+struct State{
+
+}
+
 fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
     let mut wtr = csv::Writer::from_writer(io::stdout());
     wtr.write_record(&["key", "type", "encoding", "value"])?;
@@ -53,6 +57,18 @@ fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
 }
 
 #[tauri::command]
+async fn start_listen_server(window: tauri::Window, port: String) -> Result<(), String> {
+    
+    let app = window.app_handle();
+
+    thread::spawn(move || {
+        serial::read_rfid(app, port);
+    });
+    Ok(())
+
+}
+
+#[tauri::command]
 // We cant use this because dyn Error doesnt implement Serialize but string does :)
 // async fn save_card(value: String) -> Result<(), Box<dyn Error>> {
 async fn save_cards_to_csv_command(cards: Vec<Card>) -> Result<(), String> {
@@ -79,7 +95,7 @@ fn main() {
             save_cards_to_csv_command,
             get_ports
         ])
-        .setup(|app| setup(app))
+        // .setup(|app| setup(app))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -89,8 +105,8 @@ fn setup(app: &App) -> Result<(), Box<(dyn std::error::Error)>> {
     let app_handle = app.handle();
 
     thread::spawn(move || {
-        serial::read_rfid(app_handle);
-        // test_loop(app_handle);
+        // serial::read_rfid(app_handle);
+        test_loop(app_handle);
     });
     Ok(())
 }

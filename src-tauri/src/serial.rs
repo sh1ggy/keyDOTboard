@@ -1,11 +1,13 @@
 
 use core::time::Duration;
 
-use tauri::{AppHandle};
-pub fn read_rfid(app: AppHandle) {
-    const PORT_PATH: &str = "COM4";
+use tauri::{AppHandle, api::process};
+pub fn read_rfid(app: AppHandle, port_path: String) {
+// pub fn read_rfid() {
+    // let app = process::app_handle().expect("failed to get app handle");
+    // const PORT_PATH: &str = "COM4";
     const BAUD_RATE:u32 = 115_200;
-    let port = serialport::new(PORT_PATH, BAUD_RATE)
+    let port = serialport::new(&port_path, BAUD_RATE)
         .timeout(Duration::from_millis(10))
         .open();
     // On drop of port, it automatically cleans up for you
@@ -72,7 +74,8 @@ pub fn read_rfid(app: AppHandle) {
             }
         }
         Err(e) => {
-            eprintln!("Failed to open \"{}\". Error: {}", PORT_PATH, e);
+            // Emit error to client
+            eprintln!("Failed to open \"{}\". Error: {}", port_path, e);
             ::std::process::exit(1);
         }
     }
