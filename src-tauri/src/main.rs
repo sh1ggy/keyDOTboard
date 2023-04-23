@@ -101,7 +101,7 @@ fn test_loop(app: AppHandle) {
     loop {
         thread::sleep(millis_100);
         let payload = format!("Hey man {}", counter);
-        app.emit_all("rfid", payload);
+        // app.emit_all("rfid", payload);
         counter += 1;
     }
 }
