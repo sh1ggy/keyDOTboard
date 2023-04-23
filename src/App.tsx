@@ -126,10 +126,10 @@ function App() {
   }, [toastText])
 
   const createCard = async () => {
-    // if (rfid == null) {
-    //   showToast("No RFID detected yet");
-    //   return;
-    // }
+    if (rfid == null) {
+      showToast("No RFID detected yet");
+      return;
+    }
     if (createName == "") {
       showToast("Enter name");
       return
@@ -142,7 +142,7 @@ function App() {
     const newCard: Card = {
       name: createName,
       password: createPassword,
-      rfid: "asdaopj",
+      rfid: rfid,
     }
     let exitEarly = false;
     setCards((prev) => {
@@ -222,6 +222,11 @@ function App() {
   }
 
   const clearData = async () => {
+    const clearData = await invoke('start_listen_server', { "port": selectedPort });
+  }
+
+  const syncData = async () => {
+    const syncData = await invoke('save_cards_to_csv', { "port": selectedPort });
   }
 
   // const [ports, setPorts] = useState<string[]>([]);
@@ -239,7 +244,7 @@ function App() {
       {/* NAVBAR */}
       <ul className="flex bg-[#8C89AC] py-3 z-10 items-center">
         <li className="text-center flex-1">
-          <button className="text-gray text-center p-3 bg-[#292828] rounded-lg text-[white]">Get Ports</button>
+          <button className="text-gray text-center p-3 bg-[#292828] rounded-lg text-[white]" onClick={syncData}>Sync</button>
         </li>
         <li className="flex-1 mr-2">
           <div className="flex-1 flex justify-center mr-auto ml-auto navbar-center">
