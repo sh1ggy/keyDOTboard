@@ -22,6 +22,6 @@ export const backupCardsToDisk = async (cards: Card[]) => {
   // Save to localstorage
 
 }
-export const getPorts = () => {
-  return invoke<string[]>('get_ports');
+export const getPorts = async () => {
+  return await invoke<string[]>('get_ports');
 }
