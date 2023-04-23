@@ -51,13 +51,13 @@ function App() {
   const [createName, setCreateName] = useState("");
   const [createPassword, setCreatePassword] = useState("");
   const [editView, setEditView] = useState(false);
+  const [activeView, setActiveView] = useState(false);
   const [index, setIndex] = useState(0);
   // Instead we are going to only edit the card (dont display the password field)
   const [editPassword, setEditPassword] = useState("");
   const [editName, setEditName] = useState("");
   const [showCreatePassword, setCreateShowPassword] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
-
 
   const [activateToast, setActivateToast] = useState(false);
   const [toastText, setToastText] = useState("");
@@ -210,7 +210,7 @@ function App() {
   }
 
   const [ports, setPorts] = useState<string[]>([]);
-  const [selectedPort, setSelectedPort] = useState<string | null>(null);
+  const [selectedPort, setSelectedPort] = useState<string | null>("null");
 
   const getPortsValue = async () => {
     const getPortsValue = await getPorts();
@@ -246,113 +246,126 @@ function App() {
       </div>
 
       {selectedPort == null ?
-        <PortSelection ports={ports} selectedPort={selectedPort} setSelectedPort={setSelectedPort} setToast={showToast}/>
+        <PortSelection ports={ports} selectedPort={selectedPort} setSelectedPort={setSelectedPort} setToast={showToast} />
         :
-        <div className={'flex flex-col w-full items-center min-h-screen bg-[#292828]'}>
-          <div className='flex flex-col h-full w-screen p-6 items-center bg-[#5D616C]'>
-            <code className='bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>UID: </strong>{rfid}</code>
-            <input
-              type="text"
-              placeholder="enter name..."
-              disabled={editView}
-              className="input bg-white text-dim-gray py-3 px-9 m-3 rounded-lg"
-              onChange={e => { setCreateName(e.target.value) }}
-            />
-            <div className='flex flex-row items-center'>
-              <input
-                type={`${showCreatePassword ? 'text' : 'password'}`}
-                placeholder="enter password..."
-                disabled={editView}
-                className="input w-full max-w-xs bg-white text-dim-gray p-3 rounded-l-lg"
-                onChange={e => { setCreatePassword(e.target.value) }}
-              />
-              <button
-                disabled={editView}
-                onClick={() => {setCreateShowPassword(!showCreatePassword);}}
-                className="inline-flex text-sm font-medium text-center h-full items-center px-3 py-3 text-white rounded-r-lg bg-white">
-                {showCreatePassword ?
-                  <img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
-                  :
-                  <img className='object-contain w-6 h-6 items-center' src={eyeOffIcon} />
-                }
-              </button>
-            </div>
-            <label htmlFor="create-card-modal" className="btn btn-ghost">
-              <button disabled={editView} className="text-gray text-center p-3 m-3 bg-[#292828] rounded-lg text-[white]" onClick={createCard}>Create Card</button>
-            </label>
-
-          </div>
-          <code onClick={() => { setSelectedPort(null) }} className='mt-24 cursor-pointer transition duration-300 hover:scale-110 bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>Port Selected: </strong>{selectedPort}</code>
-          <div className='flex flex-row flex-wrap items-center'>
-            {editView ?
-
-              <div className='flex flex-col mt-24 mx-6'>
-                <div className="justify-center text-white text-xl p-6  bg-[#8B89AC] rounded-t-lg" >Editing Card</div>
-                <div className="justify-center text-white p-6 bg-[#5D616C] rounded-b-lg ">
-                  <p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">ID: {cards[index].rfid}</p>
-                  <input
-                    type='text'
-                    placeholder={cards[index].name}
-                    className="input w-full max-w-xs bg-[#5D616C] text-white text-dim-gray p-3 rounded-lg"
-                    onChange={e => { setEditName(e.target.value) }}
-                  />
-                  <div className='flex flex-row items-center pb-3'>
-                    <input
-                      type={`${showEditPassword ? 'text' : 'password'}`}
-                      placeholder="enter password..."
-                      className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 rounded-l-lg"
-                      onChange={e => { setEditPassword(e.target.value) }}
-                    />
-                    <button
-                      onClick={() => {
-                        setShowEditPassword(!showEditPassword);
-                      }}
-                      className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white py-3">
-                      {showEditPassword ?
-                        <img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
-                        :
-                        <img className='object-contain w-6 h-6 items-center' src={eyeOffIcon} />
-                      }
-                    </button>
-                  </div>
-                  <button onClick={() => setEditView(false)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-                    <img className='object-contain w-6 h-6 items-center' src={dismissIcon} />
-                  </button>
-                  <button onClick={() => saveCard(index)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                    <img className='object-contain w-6 h-6 items-center' src={saveIcon} />
-                  </button>
-                </div>
+        <div className={'flex flex-col w-full items-center min-h-screen pb-24 bg-[#292828] overflow-hidden'}>
+          {activeView ?
+            <div className="flex flex-col items-center bg-[#80809D] h-screen w-screen pt-24">
+              <div className="pt-24 justify-center text-2xl animate-bounce items-center rounded-lg text-white">Key.board is active
               </div>
-              :
-              cards.length == 0 ?
-                <div className=" py-24 justify-center w-full h-full rounded-lg text-white">No cards!
+              <button className="text-gray text-center p-3 m-3 bg-[#292828] rounded-lg text-white"
+                onClick={() => setActiveView(!activeView)}>Edit mode</button>
+            </div>
+            :
+            <>
+              <div className='flex flex-col h-full w-screen p-6 items-center bg-[#5D616C]'>
+                <code className='bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>UID: </strong>{rfid}</code>
+                <input
+                  type="text"
+                  placeholder="enter name..."
+                  disabled={editView}
+                  className="input bg-white text-dim-gray py-3 px-9 m-3 rounded-lg"
+                  onChange={e => { setCreateName(e.target.value) }}
+                />
+                <div className='flex flex-row items-center'>
+                  <input
+                    type={`${showCreatePassword ? 'text' : 'password'}`}
+                    placeholder="enter password..."
+                    disabled={editView}
+                    className="input w-full max-w-xs bg-white text-dim-gray p-3 mb-3 rounded-l-lg"
+                    onChange={e => { setCreatePassword(e.target.value) }}
+                  />
+                  <button
+                    disabled={editView}
+                    onClick={() => { setCreateShowPassword(!showCreatePassword); }}
+                    className="inline-flex text-sm font-medium text-center h-full items-center px-3 py-3 mb-3 text-white rounded-r-lg bg-white">
+                    {showCreatePassword ?
+                      <img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
+                      :
+                      <img className='object-contain w-6 h-6 items-center' src={eyeOffIcon} />
+                    }
+                  </button>
                 </div>
-                :
-                cards.map((c, i) => {
-                  return (
-                    <div key={i} className="flex flex-col max-w-sm p-6 bg-[#5D616C] rounded-lg mt-24 mx-6">
-                      <div className='flex flex-col items-start'>
-                        <p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">ID: {c.rfid}</p>
-                        <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{c.name}</h5>
-                      </div>
-                      <div className='flex flex-row items-end'>
-                        <button className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                          <img
-                            onClick={() => {
-                              setEditView(true);
-                              setIndex(i);
-                            }}
-                            className='object-contain w-6 h-6 items-center' src={editIcon} />
+                <label htmlFor="create-card-modal" className="btn btn-ghost">
+                  <button disabled={editView} className="text-gray text-center p-3 m-3 bg-[#292828] rounded-lg text-[white]" onClick={createCard}>Create Card</button>
+                </label>
+
+              </div>
+              <code onClick={() => { setSelectedPort(null) }} className='mt-24 cursor-pointer transition duration-300 hover:scale-110 bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>Port Selected: </strong>{selectedPort}</code>
+              <button className="text-gray text-center p-3 m-3 bg-green-700 rounded-lg text-white"
+                onClick={() => setActiveView(!activeView)}>Activate</button>
+              <div className='flex flex-row flex-wrap items-center'>
+                {editView ?
+
+                  <div className='flex flex-col mt-24 mx-6'>
+                    <div className="justify-center text-white text-xl p-6  bg-[#8B89AC] rounded-t-lg" >Editing Card</div>
+                    <div className="justify-center text-white p-6 bg-[#5D616C] rounded-b-lg ">
+                      <p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">ID: {cards[index].rfid}</p>
+                      <input
+                        type='text'
+                        placeholder={cards[index].name}
+                        className="input w-full max-w-xs bg-[#5D616C] text-white text-dim-gray p-3 rounded-lg"
+                        onChange={e => { setEditName(e.target.value) }}
+                      />
+                      <div className='flex flex-row items-center pb-3'>
+                        <input
+                          type={`${showEditPassword ? 'text' : 'password'}`}
+                          placeholder="enter password..."
+                          className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 rounded-l-lg"
+                          onChange={e => { setEditPassword(e.target.value) }}
+                        />
+                        <button
+                          onClick={() => {
+                            setShowEditPassword(!showEditPassword);
+                          }}
+                          className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white py-3">
+                          {showEditPassword ?
+                            <img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
+                            :
+                            <img className='object-contain w-6 h-6 items-center' src={eyeOffIcon} />
+                          }
                         </button>
-                        <button onClick={() => deleteCard(i)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-                          <img className='object-contain w-6 h-6 items-center' src={deleteIcon} />
-                        </button>
                       </div>
+                      <button onClick={() => setEditView(false)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                        <img className='object-contain w-6 h-6 items-center' src={dismissIcon} />
+                      </button>
+                      <button onClick={() => saveCard(index)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                        <img className='object-contain w-6 h-6 items-center' src={saveIcon} />
+                      </button>
                     </div>
-                  )
-                })
-            }
-          </div>
+                  </div>
+                  :
+                  cards.length == 0 ?
+                    <div className=" py-24 justify-center w-full h-full rounded-lg text-white">No cards!
+                    </div>
+                    :
+                    cards.map((c, i) => {
+                      return (
+                        <div key={i} className="flex flex-col max-w-sm p-6 bg-[#5D616C] rounded-lg mt-24 mx-6">
+                          <div className='flex flex-col items-start'>
+                            <p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">ID: {c.rfid}</p>
+                            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{c.name}</h5>
+                          </div>
+                          <div className='flex flex-row items-end'>
+                            <button className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                              <img
+                                onClick={() => {
+                                  setEditView(true);
+                                  setIndex(i);
+                                }}
+                                className='object-contain w-6 h-6 items-center' src={editIcon} />
+                            </button>
+                            <button onClick={() => deleteCard(i)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                              <img className='object-contain w-6 h-6 items-center' src={deleteIcon} />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })
+                }
+              </div>
+            </>
+          }
         </div>
       }
     </>
