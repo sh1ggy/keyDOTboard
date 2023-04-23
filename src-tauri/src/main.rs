@@ -93,7 +93,8 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             save_cards_to_csv_command,
-            get_ports
+            get_ports,
+            start_listen_server
         ])
         // .setup(|app| setup(app))
         .run(tauri::generate_context!())

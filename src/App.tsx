@@ -226,7 +226,7 @@ function App() {
   }
 
   const [ports, setPorts] = useState<string[]>([]);
-  const [selectedPort, setSelectedPort] = useState<string | null>("null");
+  const [selectedPort, setSelectedPort] = useState<string | null>(null);
 
   const getPortsValue = async () => {
     const getPortsValue = await getPorts();
