@@ -11,6 +11,8 @@ import eyeOnIcon from './assets/eyeOn.svg'
 import { invoke } from '@tauri-apps/api/tauri'
 import { Command } from '@tauri-apps/api/shell'
 import { PortSelection } from './components/PortSelection'
+import { BaseDirectory, createDir, writeFile } from '@tauri-apps/api/fs';
+
 
 // interface RFIDPayload {
 //   uid: string;
@@ -62,6 +64,8 @@ function App() {
   const [activateToast, setActivateToast] = useState(false);
   const [toastText, setToastText] = useState("");
 
+
+
   useEffect(() => {
     // Listen to tauri events
     const unlistenRFID = listen<string>("rfid", (e) => {
@@ -79,11 +83,17 @@ function App() {
     //   uid: "test",
     // })
 
-    // ????
-    // const init = async () => {
-    //   const cards = await invoke('get_cards', port);
-    // }
+    // 
+    const init = async () => {
+      const listenServer = await invoke('start_listen_server', { "port": selectedPort });
 
+      // Getting cards from local storage
+      const localCards = localStorage.getItem("savedCards");
+      if (!localCards) setCards([]);
+      else setCards(JSON.parse(localCards));
+    }
+
+    init();
     // setCards(cards);
 
     return (() => {
@@ -93,6 +103,12 @@ function App() {
     })
   }, []);
 
+  const saveCards = async (filename: string) => {
+    localStorage.setItem("savedCards", JSON.stringify(cards));
+  }
+  useEffect(() => {
+    saveCards
+  }, [cards])
 
   useEffect(() => {
     console.log(`Received new rfid ${rfid}`);
