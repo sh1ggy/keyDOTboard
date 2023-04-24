@@ -12,6 +12,7 @@ import { invoke } from '@tauri-apps/api/tauri'
 import { Command } from '@tauri-apps/api/shell'
 import { PortSelection } from './components/PortSelection'
 import { BaseDirectory, createDir, writeFile } from '@tauri-apps/api/fs';
+import { usePersistedState } from './hooks/usePersistedState'
 
 
 // interface RFIDPayload {
@@ -30,7 +31,6 @@ export interface Card {
 interface error {
   title: string;
   message: string;
-
 }
 
 const CARDS_SEED: Card[] = [{
@@ -50,16 +50,14 @@ function App() {
   });
 
   const [rfid, setRfid] = useState<string | null>(null);
-  // const [cards, setCards] = useState<Card[]>(CARDS_SEED);
-  const [cards, setCards] = useState<Card[]>([]);
-
+  const [cards, setCards] = usePersistedState<Card[]>(CARDS_SEED, "savedCards");
 
   const [createName, setCreateName] = useState("");
   const [createPassword, setCreatePassword] = useState("");
   const [editView, setEditView] = useState(false);
   const [activeView, setActiveView] = useState(false);
   const [index, setIndex] = useState(0);
-  // Instead we are going to only edit the card (dont display the password field)
+
   const [editPassword, setEditPassword] = useState("");
   const [editName, setEditName] = useState("");
   const [showCreatePassword, setCreateShowPassword] = useState(false);
@@ -68,63 +66,51 @@ function App() {
   const [activateToast, setActivateToast] = useState(false);
   const [toastText, setToastText] = useState("");
 
-
-
   useEffect(() => {
     // Listen to tauri events
     const unlistenRFID = listen<string>("rfid", (e) => {
       console.log(e.payload);
       setRfid(e.payload);
-      // setRfidPayload(e.payload)
     })
     const unlistenError = listen<error>("error", (e) => {
       console.log(e.payload);
       setError(e.payload)
     })
 
-    // Set as intial state instead
-    // setRfidPayload({
-    //   uid: "test",
-    // })
-
-    // 
     const init = async () => {
       await sleep(100);
       // Getting cards from local storage
       const localCards = localStorage.getItem("savedCards");
-      if (localCards == null) {
-        console.log(" Starting from the bottom");
-
+      console.log("GETTING CARDS");
+      if (!localCards) {
+        console.log("NO CARDS");
+        console.log(JSON.stringify(cards));
         setCards([]);
       }
       else {
-        const gottenCards = JSON.parse(localCards);
-        console.log({ gottenCards });
-
-        setCards(gottenCards);
+        console.log("CARDS HERE");
+        setCards(JSON.parse(localCards));
+        console.log(cards);
       }
-      console.log(cards);
+
     }
 
     init();
-
-    // setCards(cards);
+    // setTimeout(() => init(), 2000);
 
     return (() => {
-      // unsubscribe from tauri events
+      // Unsubscribe from tauri events
       unlistenRFID;
       unlistenError;
     })
   }, []);
-  // const showToast = useCallback((toastMessage: string) => {
 
   const saveCards = useCallback(() => {
     console.log(JSON.stringify(cards));
     localStorage.setItem("savedCards", JSON.stringify(cards));
-  }, [cards])
+  }, [cards]);
 
   useEffect(() => {
-    console.log(JSON.stringify(cards));
     saveCards();
   }, [cards])
 
@@ -145,10 +131,10 @@ function App() {
   }, [toastText])
 
   const createCard = async () => {
-    if (rfid == null) {
-      showToast("No RFID detected yet");
-      return;
-    }
+    // if (rfid == null) {
+    //   showToast("No RFID detected yet");
+    //   return;
+    // }
     if (createName == "") {
       showToast("Enter name");
       return
@@ -161,7 +147,7 @@ function App() {
     const newCard: Card = {
       name: createName,
       password: createPassword,
-      rfid: rfid,
+      rfid: "rfid",
     }
     let exitEarly = false;
     setCards((prev) => {
@@ -243,6 +229,9 @@ function App() {
 
   const clearData = async () => {
     // const clearData = await invoke('start_listen_server', { "port": selectedPort });
+    await setCards([]);
+    localStorage.removeItem("savedCards");
+    showToast("Cards cleared!");
   }
 
   const syncData = async () => {
@@ -278,18 +267,10 @@ function App() {
 
   }
 
-  // const [ports, setPorts] = useState<string[]>([]);
-  const [selectedPort, setSelectedPort] = useState<string | null>(null);
-
-  // const getPortsValue = async () => {
-  //   const getPortsValue = await getPorts();
-  //   setPorts(getPortsValue);
-  //   showToast("Got ports!");
-  // }
+  const [selectedPort, setSelectedPort] = useState<string | null>("null");
 
   return (
     <>
-
       {/* NAVBAR */}
       <ul className="flex bg-[#8C89AC] py-3 z-10 items-center">
         <li className="text-center flex-1">
@@ -339,7 +320,7 @@ function App() {
                   type="text"
                   placeholder="enter name..."
                   disabled={editView}
-                  className="input bg-white text-dim-gray py-3 px-9 m-3 rounded-lg"
+                  className="input bg-white text-dim-gray py-3 pl-3 pr-16 m-3 rounded-lg"
                   onChange={e => { setCreateName(e.target.value) }}
                 />
                 <div className='flex flex-row items-center'>
@@ -371,7 +352,6 @@ function App() {
                 onClick={() => setActiveView(!activeView)}>Activate</button>
               <div className='flex flex-row flex-wrap items-center'>
                 {editView ?
-
                   <div className='flex flex-col mt-24 mx-6'>
                     <div className="justify-center text-white text-xl p-6  bg-[#8B89AC] rounded-t-lg" >Editing Card</div>
                     <div className="justify-center text-white p-6 bg-[#5D616C] rounded-b-lg ">
