@@ -16,6 +16,8 @@ Preferences preferences;
 byte uid_cache[UID_BYTE_ARRAY_SIZE];
 unsigned int uid_count;
 
+byte tag[10]={0x64,0xAE,0xDD,0xFC,};
+char pswd[]="********\n";      //password, end with just \n
 void print_byte_array(byte *byte_arr, size_t arr_size)
 {
 
