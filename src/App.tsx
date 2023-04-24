@@ -118,10 +118,11 @@ function App() {
   }, []);
   // const showToast = useCallback((toastMessage: string) => {
 
-  const saveCards = useCallback(async () => {
+  const saveCards = useCallback(() => {
     console.log(JSON.stringify(cards));
     localStorage.setItem("savedCards", JSON.stringify(cards));
   }, [cards])
+
   useEffect(() => {
     console.log(JSON.stringify(cards));
     saveCards();
@@ -248,28 +249,32 @@ function App() {
     // Once this is done
     const syncData = await invoke('save_cards_to_csv_command', { cards, port: selectedPort });
     await sleep(200);
-    const binaryCommand = new Command(String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe`,
-      [String.raw`C:\Users\anhad\esp\esp-idf\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py`, `generate`, `data.csv`, `data.bin`, `0x5000`]);
+    const binaryCommand = new Command("test");
+    const binCommandResult = await binaryCommand.execute();
+    console.log({binCommandResult});
+    
+    // const binaryCommand = new Command(String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe`,
+    //   [String.raw`C:\Users\anhad\esp\esp-idf\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py`, `generate`, `data.csv`, `data.bin`, `0x5000`]);
 
-    const binaryChild = await binaryCommand.spawn();
-    const uploadCommand = new Command(
-      String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
-      [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
+    // const binaryChild = await binaryCommand.spawn();
+    // const uploadCommand = new Command(
+    //   String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
+    //   [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
 
-    binaryCommand.stdout.on('data', line => console.log(`binarycommand stdout: "${line}"`));
-    binaryCommand.stderr.on('data', line => console.log(`binary command stderr: "${line}"`));
+    // binaryCommand.stdout.on('data', line => console.log(`binarycommand stdout: "${line}"`));
+    // binaryCommand.stderr.on('data', line => console.log(`binary command stderr: "${line}"`));
 
-    uploadCommand.stdout.on('data', line => console.log(`uploadcommand stdout: "${line}"`));
-    uploadCommand.stderr.on('data', line => console.log(`uplaodcommand stderr: "${line}"`));
+    // uploadCommand.stdout.on('data', line => console.log(`uploadcommand stdout: "${line}"`));
+    // uploadCommand.stderr.on('data', line => console.log(`uplaodcommand stderr: "${line}"`));
 
-    binaryCommand.on('close', () => {
-      uploadCommand.spawn();
-      console.log("Done");
-    });
+    // binaryCommand.on('close', () => {
+    //   uploadCommand.spawn();
+    //   console.log("Done");
+    // });
 
-    uploadCommand.on('close', () => {
-      showToast("Finished saving to disk!");
-    })
+    // uploadCommand.on('close', () => {
+    //   showToast("Finished saving to disk!");
+    // })
 
   }
 
@@ -290,6 +295,12 @@ function App() {
         <li className="text-center flex-1">
           <button className="text-gray text-center p-3 bg-[#292828] rounded-lg text-[white]" onClick={syncData}>Sync</button>
         </li>
+        <li className="text-center flex-1">
+          <button className="text-gray text-center p-3 bg-[#292828] rounded-lg text-[white]" onClick={async ()=> {
+            await invoke("test");
+          }}>Test</button>
+        </li>
+
         <li className="flex-1 mr-2">
           <div className="flex-1 flex justify-center mr-auto ml-auto navbar-center">
             <img className='object-contain select-none' src={wlogo} />

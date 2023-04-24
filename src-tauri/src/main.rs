@@ -9,7 +9,7 @@ use std::{
     time::{self, Duration},
 };
 use std::{io, num::ParseIntError, thread};
-use tokio::runtime::Runtime;
+use tauri::{Config, Runtime};
 
 // Need to implement serde::deserialize trait on this to use in command
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
@@ -19,13 +19,46 @@ struct Card {
     rfid: String,
 }
 
-struct State{
+struct State {}
 
+#[derive(Default)]
+struct MyState {
+    s: std::sync::Mutex<String>,
+    t: std::sync::Mutex<std::collections::HashMap<String, String>>,
+}
+// remember to call `.manage(MyState::default())`
+#[tauri::command]
+async fn command_name(state: tauri::State<'_, MyState>) -> Result<(), String> {
+    *state.s.lock().unwrap() = "new string".into();
+    state.t.lock().unwrap().insert("key".into(), "value".into());
+    Ok(())
 }
 
-fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
-    // let mut wtr = csv::Writer::from_writer(io::stdout());
-    let mut wtr = csv::Writer::from_path("./data.csv")?;
+#[tauri::command]
+async fn test<R: Runtime>(
+    app: tauri::AppHandle<R>,
+    window: tauri::Window<R>,
+) -> Result<(), String> {
+    println!("test: {:#?}", app.config());
+    Ok(())
+}
+
+#[tauri::command]
+async fn command_nam3e<R: Runtime>(
+    app: tauri::AppHandle<R>,
+    window: tauri::Window<R>,
+) -> Result<(), String> {
+    Ok(())
+}
+
+fn save_cards_to_csv(cards: Vec<Card>, config: &Config) -> Result<(), Box<dyn Error>> {
+    // TODO: Use anyhow to propogate errors in this in a way that doesnt need to make a new function or use a closure
+    let mut path = tauri::api::path::app_data_dir(config).unwrap_or(std::path::PathBuf::from("./temp"));
+    std::fs::create_dir_all(&path)?;
+
+    path.push("data.csv");
+    println!("Saving csv at: {:?}", path);
+    let mut wtr = csv::Writer::from_path(path)?;
     wtr.write_record(&["key", "type", "encoding", "value"])?;
 
     let mut uid_buffer = String::new();
@@ -41,7 +74,6 @@ fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
         let card_name = &card.name;
         let record = [&key, "data", "string", card_name];
         wtr.write_record(record)?;
-
 
         let key = format!("pass{}", i.to_string());
         let card_pass = &card.password;
@@ -66,8 +98,12 @@ fn save_cards_to_csv(cards: Vec<Card>) -> Result<(), Box<dyn Error>> {
 #[tauri::command]
 // We cant use this because dyn Error doesnt implement Serialize but string does :)
 // async fn save_card(value: String) -> Result<(), Box<dyn Error>> {
-async fn save_cards_to_csv_command(cards: Vec<Card>, port: String) -> Result<(), String> {
-    let test = save_cards_to_csv(cards);
+async fn save_cards_to_csv_command(
+    app: AppHandle,
+    cards: Vec<Card>,
+    port: String,
+) -> Result<(), String> {
+    let test = save_cards_to_csv(cards, &app.config());
     if let Err(err) = test {
         println!("Could not csv: {}", err.to_string());
         return Err(err.to_string());
@@ -77,7 +113,6 @@ async fn save_cards_to_csv_command(cards: Vec<Card>, port: String) -> Result<(),
 
 #[tauri::command]
 async fn start_listen_server(window: tauri::Window, port: String) -> Result<(), String> {
-    
     let app = window.app_handle().clone();
 
     thread::spawn(move || {
@@ -85,7 +120,6 @@ async fn start_listen_server(window: tauri::Window, port: String) -> Result<(), 
     });
     Ok(())
 }
-
 
 #[tauri::command]
 fn get_ports() -> Vec<String> {
@@ -102,7 +136,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             save_cards_to_csv_command,
             get_ports,
-            start_listen_server
+            start_listen_server,
+            test
         ])
         // .setup(|app| setup(app))
         .run(tauri::generate_context!())

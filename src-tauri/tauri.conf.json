@@ -25,8 +25,9 @@
         "open": true,
         "scope": [
           {
-            "name": "C:\\Users\\anhad\\.espressif\\python_env\\idf5.0_py3.8_env\\Scripts\\python.exe",
-            "sidecar": true
+            "name": "test",
+            "cmd": "pwd",
+            "args": true
           }
         ]
       }
