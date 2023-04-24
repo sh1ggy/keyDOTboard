@@ -36,7 +36,7 @@ interface error {
 const CARDS_SEED: Card[] = [{
   name: "Test",
   password: "passwordle",
-  rfid: "112233"
+  rfid: "632DF01B"
 }];
 
 function App() {
@@ -235,10 +235,14 @@ function App() {
   }
 
   const syncData = async () => {
-    // Once this is done
-    const syncData = await invoke('save_cards_to_csv_command', { cards, port: selectedPort });
-    await sleep(200);
-    const binaryCommand = new Command("test");
+    // const syncData = await invoke('save_cards_to_csv_command', { cards, port: selectedPort });
+
+    // These commands are executed on `cmd`
+    // const binaryCommand = new Command("test", ['/C', 'echo', "hey"]);
+    // const binCommandResult = await binaryCommand.execute();
+    // console.log({binCommandResult});
+
+    const binaryCommand = new Command("python", ['-c', 'print("hey brother")']);
     const binCommandResult = await binaryCommand.execute();
     console.log({binCommandResult});
     

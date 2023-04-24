@@ -19,14 +19,18 @@
         "all": true
       },
       "shell": {
-        "all": true,
         "execute": true,
         "sidecar": true,
         "open": true,
         "scope": [
           {
             "name": "test",
-            "cmd": "pwd",
+            "cmd": "cmd",
+            "args": true
+          },
+          {
+            "name": "python",
+            "cmd": "python",
             "args": true
           }
         ]
@@ -47,7 +51,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.kongi.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
