@@ -6,7 +6,7 @@
 mod serial;
 use std::{
     error::Error,
-    time::{self, Duration},
+    time::{self, Duration}, sync::Arc,
 };
 use std::{io, num::ParseIntError, thread};
 use tauri::{Config, Runtime};
@@ -51,14 +51,15 @@ async fn command_nam3e<R: Runtime>(
     Ok(())
 }
 
-fn save_cards_to_csv(cards: Vec<Card>, config: &Config) -> Result<(), Box<dyn Error>> {
+fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Box<dyn Error>> {
     // TODO: Use anyhow to propogate errors in this in a way that doesnt need to make a new function or use a closure
-    let mut path = tauri::api::path::app_data_dir(config).unwrap_or(std::path::PathBuf::from("./temp"));
+    let mut path =
+        tauri::api::path::app_data_dir(&config).unwrap_or(std::path::PathBuf::from("./temp"));
     std::fs::create_dir_all(&path)?;
 
     path.push("data.csv");
     println!("Saving csv at: {:?}", path);
-    let mut wtr = csv::Writer::from_path(path)?;
+    let mut wtr = csv::Writer::from_path(&path)?;
     wtr.write_record(&["key", "type", "encoding", "value"])?;
 
     let mut uid_buffer = String::new();
@@ -91,24 +92,34 @@ fn save_cards_to_csv(cards: Vec<Card>, config: &Config) -> Result<(), Box<dyn Er
         uid_buffer.push_str(&card.rfid);
     }
     wtr.write_record(&["uids", "data", "hex2bin", &uid_buffer])?;
-
-    Ok(())
+    match path.to_str() {
+        Some(str) => Ok(str.into()),
+        None => Err("HEy man, path for path buf could not be computed, prolly not a valid utf-8 string".into()),
+    }
 }
 
-#[tauri::command]
 // We cant use this because dyn Error doesnt implement Serialize but string does :)
 // async fn save_card(value: String) -> Result<(), Box<dyn Error>> {
+#[tauri::command]
 async fn save_cards_to_csv_command(
     app: AppHandle,
     cards: Vec<Card>,
     port: String,
-) -> Result<(), String> {
-    let test = save_cards_to_csv(cards, &app.config());
-    if let Err(err) = test {
-        println!("Could not csv: {}", err.to_string());
-        return Err(err.to_string());
+) -> Result<String, String> {
+    // let confRef = &app.config();
+
+// Because we are now using the value of path_to_csv, the config reference that has to be passed into save_cards becomes invalid because the return type may use it later
+    let path_to_csv = save_cards_to_csv(cards, app.config());
+
+// Ok(("Hey".into()))
+    match path_to_csv {
+        Ok(path_to_csv) => Ok(path_to_csv.to_string()),
+        Err(err) => {
+            let errString = format!("Could not csv: {}", err.to_string());
+            println!("{errString}");
+            return Err(errString);
+        }
     }
-    Ok(())
 }
 
 #[tauri::command]
