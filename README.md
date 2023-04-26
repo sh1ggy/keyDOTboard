@@ -7,3 +7,4 @@
     
 - Run `pyinstaller --distpath ./dist merged.spec`
 - Drag in the esptool binary from `https://github.com/espressif/esptool` for your platform into the dist folder
+- rename folder to match os tag

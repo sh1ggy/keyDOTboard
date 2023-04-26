@@ -1,0 +1,3 @@
+[submodule "src-tauri/bin/esp-idf"]
+	path = src-tauri/bin/esp-idf
+	url = git@github.com:ProPablo/esp-idf.git
