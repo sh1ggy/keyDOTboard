@@ -235,7 +235,9 @@ function App() {
   }
 
   const syncData = async () => {
-    // const syncData = await invoke('save_cards_to_csv_command', { cards, port: selectedPort });
+    const syncData = await invoke('save_cards_to_csv_command', { cards, port: selectedPort });
+    console.log("Data saevd at " + syncData);
+    
 
     // These commands are executed on `cmd`
     // const binaryCommand = new Command("test", ['/C', 'echo', "hey"]);

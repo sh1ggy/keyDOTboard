@@ -1,0 +1,8 @@
+{
+    "namespace1": {
+        "key": {
+            "type": "string",
+            "value": "Hey man"
+        }
+    }
+}

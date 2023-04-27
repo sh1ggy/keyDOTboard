@@ -32,6 +32,11 @@
             "name": "python",
             "cmd": "python",
             "args": true
+          },
+          {
+            "name": "explorer",
+            "cmd": "explorer",
+            "args": true
           }
         ]
       }

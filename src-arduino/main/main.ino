@@ -63,10 +63,6 @@ void setup()
 	pinMode(2, OUTPUT);
 }
 
-// int find_card_uid(uint_8 *found_arr)
-// {
-// 	unsigned int
-// }
 
 void loop()
 {

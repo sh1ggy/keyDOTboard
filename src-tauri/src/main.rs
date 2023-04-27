@@ -6,7 +6,8 @@
 mod serial;
 use std::{
     error::Error,
-    time::{self, Duration}, sync::Arc,
+    sync::Arc,
+    time::{self, Duration},
 };
 use std::{io, num::ParseIntError, thread};
 use tauri::{Config, Runtime};
@@ -61,8 +62,10 @@ fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Bo
     println!("Saving csv at: {:?}", path);
     let mut wtr = csv::Writer::from_path(&path)?;
     wtr.write_record(&["key", "type", "encoding", "value"])?;
+    wtr.write_record(&["kb", "namespace", "", ""])?;
 
     let mut uid_buffer = String::new();
+    let mut uid_count = cards.len();
 
     for (i, card) in cards.iter().enumerate() {
         println!("card lol: {:?}", card);
@@ -92,9 +95,14 @@ fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Bo
         uid_buffer.push_str(&card.rfid);
     }
     wtr.write_record(&["uids", "data", "hex2bin", &uid_buffer])?;
+    wtr.write_record(&["num_cards", "data", "u32", &uid_count.to_string()])?;
+
     match path.to_str() {
         Some(str) => Ok(str.into()),
-        None => Err("HEy man, path for path buf could not be computed, prolly not a valid utf-8 string".into()),
+        None => Err(
+            "HEy man, path for path buf could not be computed, prolly not a valid utf-8 string"
+                .into(),
+        ),
     }
 }
 
@@ -108,10 +116,10 @@ async fn save_cards_to_csv_command(
 ) -> Result<String, String> {
     // let confRef = &app.config();
 
-// Because we are now using the value of path_to_csv, the config reference that has to be passed into save_cards becomes invalid because the return type may use it later
+    // Because we are now using the value of path_to_csv, the config reference that has to be passed into save_cards becomes invalid because the return type may use it later
     let path_to_csv = save_cards_to_csv(cards, app.config());
 
-// Ok(("Hey".into()))
+    // Ok(("Hey".into()))
     match path_to_csv {
         Ok(path_to_csv) => Ok(path_to_csv.to_string()),
         Err(err) => {
