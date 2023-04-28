@@ -350,7 +350,6 @@ def dump_nvs_data_json():
             # This kills the null termination characters which cant be represented in json encoding and are therefore represented as \u0000
             # Keeping the character around is fine
             data_str = data_str.rstrip('\x00')
-            print("string lol", data_str)
             type_str = EntryType(entry_type).name
             ns_dict[entry_key] = {"type": type_str, "value": data_str}
 
