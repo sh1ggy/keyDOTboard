@@ -2,7 +2,6 @@
 // TODO: organize imports to interfaces (likely make a Card component (Model View Controller pattern))
 import { path, tauri, os } from "@tauri-apps/api";
 import { invoke } from '@tauri-apps/api/tauri'
-import { OsType } from "@tauri-apps/api/os";
 
 export const reflashPartition = async (): Promise<Boolean> => {
   // TODO: await command send

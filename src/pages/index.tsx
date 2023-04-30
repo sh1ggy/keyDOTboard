@@ -5,8 +5,6 @@ import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/tauri'
 import { Command } from '@tauri-apps/api/shell'
 import { getPorts, reflashPartition } from '../services'
-import { BaseDirectory, createDir, writeFile } from '@tauri-apps/api/fs';
-import { usePersistedState } from '../hooks/usePersistedState'
 
 import wlogo from '/wlogo.svg'
 import dynamic from 'next/dynamic'
@@ -60,7 +58,7 @@ function App() {
   });
 
   const [rfid, setRfid] = useState<string | null>(null);
-  const [cards, setCards] = usePersistedState<Card[]>(CARDS_SEED, "savedCards");
+  const [cards, setCards] = useState<Card[]>([]);
 
   const [createName, setCreateName] = useState("");
   const [createPassword, setCreatePassword] = useState("");
@@ -92,7 +90,6 @@ function App() {
       await sleep(100);
       // Getting cards from local storage
       let localCards;
-      if (typeof window !== "undefined") localCards = localStorage.getItem("savedCards");
       console.log("GETTING CARDS");
       if (!localCards) {
         console.log("NO CARDS");
@@ -116,13 +113,8 @@ function App() {
     })
   }, []);
 
-  const saveCards = useCallback(() => {
-    console.log(JSON.stringify(cards));
-    if (typeof window !== "undefined") localStorage.setItem("savedCards", JSON.stringify(cards));
-  }, [cards]);
 
   useEffect(() => {
-    saveCards();
   }, [cards])
 
   useEffect(() => {
@@ -235,7 +227,6 @@ function App() {
   const clearData = async () => {
     // const clearData = await invoke('start_listen_server', { "port": selectedPort });
     await setCards([]);
-    if (typeof window !== "undefined") localStorage.removeItem("savedCards");
     setToast("Cards cleared!");
   }
 
