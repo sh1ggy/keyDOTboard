@@ -1,36 +1,36 @@
 import { invoke } from "@tauri-apps/api";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getPorts } from "../services";
+import { PortContext } from "./_app";
+import { useToast } from '@/hooks/useToast';
+import { useRouter } from 'next/navigation';
 
-export interface PortsProps {
-	selectedPort: string | null,
-	setSelectedPort: React.Dispatch<React.SetStateAction<string | null>>,
-	setToast: (toastMessage: string) => void,
-}
-
-
-export function PortSelection(props: PortsProps) {
+export default function PortSelection() {
 	const [ports, setPorts] = useState<string[]>([]);
 	const [portOption, setPortOption] = useState("");
+	const [selectedPort, setSelectedPort] = useContext(PortContext);
+	const setToast = useToast();
+	const router = useRouter();
+
 	useEffect(() => {
 		getPortsValue();
 	}, [])
 	const savePort = async () => {
 		const listenServer = await invoke('start_listen_server', { "port": portOption });
 		if (portOption != "") {
-			props.setSelectedPort(portOption);
-			props.setToast("Saved port!");
+			setSelectedPort(portOption);
+			setToast("Saved port!");
+			router.push("/");
 		}
 		else {
-			props.setToast("Select port.");
+			setToast("Select port.");
 		}
 	}
 	const getPortsValue = async () => {
 		const getPortsValue = await getPorts();
 		setPorts(getPortsValue);
-		props.setToast("Got ports!");
+		setToast("Got ports!");
 	}
-
 
 	return (
 		<div className="flex flex-col items-center bg-[#80809D] h-screen w-screen pt-24">

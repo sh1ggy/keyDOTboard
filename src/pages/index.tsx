@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation';
 
 import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/tauri'
@@ -15,20 +16,15 @@ const eyeOnIcon = '/eyeOn.svg'
 
 // import { PortSelection } from '@/components/PortSelection'
 
-import { PortsProps } from '../components/PortSelection'
+// import { PortsProps } from './ports'
 import { ActiveView } from '@/components/ActiveView'
 import { EditView } from '@/components/EditView'
 import { CardsViewProps } from '@/components/CardsView'
 import { CreateCard } from '@/components/CreateCard'
 import { Navbar } from '@/components/Navbar'
-import { Toast } from '@/components/Toast'
+import { PortContext } from './_app'
+import { useToast } from '@/hooks/useToast';
 
-const PortSelection = dynamic<PortsProps>(() => import('../components/PortSelection').then(mod => mod.PortSelection), {
-  ssr: false,
-})
-const CardsView = dynamic<CardsViewProps>(() => import('../components/CardsView').then(mod => mod.CardsView), {
-  ssr: false,
-})
 // interface RFIDPayload {
 //   uid: string;
 //   error?: string;
@@ -76,7 +72,10 @@ function App() {
   const [editName, setEditName] = useState("");
 
   const [activateToast, setActivateToast] = useState(false);
-  const [toastText, setToastText] = useState("");
+  // const [toastText, setToastText] = useState("");
+  const setToast = useToast();
+
+  const router = useRouter();
 
   useEffect(() => {
     // Listen to tauri events
@@ -105,7 +104,6 @@ function App() {
         setCards(JSON.parse(localCards));
         console.log(cards);
       }
-
     }
 
     init();
@@ -131,11 +129,11 @@ function App() {
     console.log(`Received new rfid ${rfid}`);
   }, [rfid]);
 
-  const showToast = useCallback((toastMessage: string) => {
-    setToastText(toastMessage);
-    setActivateToast(true);
-    setTimeout(() => setActivateToast(false), 2000);
-  }, [toastText])
+  // const showToast = useCallback((toastMessage: string) => {
+  //   setToastText(toastMessage);
+  //   setActivateToast(true);
+  //   setTimeout(() => setActivateToast(false), 2000);
+  // }, [toastText])
 
   const createCard = async () => {
     // if (rfid == null) {
@@ -143,11 +141,11 @@ function App() {
     //   return;
     // }
     if (createName == "") {
-      showToast("Enter name");
+      setToast("Enter name");
       return
     };
     if (createPassword == "") {
-      showToast("Enter password");
+      setToast("Enter password");
       return
     };
 
@@ -187,7 +185,7 @@ function App() {
       for (const card of prev) {
         if (cardName == card.name) {
           console.log("dupe");
-          showToast(`Duplicate card name ${cardName}`);
+          setToast(`Duplicate card name ${cardName}`);
           exitEarly = true;
           return prev;
         }
@@ -197,7 +195,7 @@ function App() {
       return tempCards;
     });
     if (exitEarly) return;
-    if (await reflashPartition() && !exitEarly) showToast("Card created!");
+    if (await reflashPartition() && !exitEarly) setToast("Card created!");
   }
 
 
@@ -209,7 +207,7 @@ function App() {
     })
 
     if (await reflashPartition())
-      showToast("Card deleted");
+      setToast("Card deleted");
   }
 
   // TODO: retry flash button
@@ -228,7 +226,7 @@ function App() {
       }
       const tempCards = [...prev];
       tempCards.splice(i, 1, editCard);
-      showToast("Card saved!");
+      setToast("Card saved!");
       setEditView(false);
       return tempCards;
     });
@@ -238,7 +236,7 @@ function App() {
     // const clearData = await invoke('start_listen_server', { "port": selectedPort });
     await setCards([]);
     if (typeof window !== "undefined") localStorage.removeItem("savedCards");
-    showToast("Cards cleared!");
+    setToast("Cards cleared!");
   }
 
   const syncData = async () => {
@@ -265,36 +263,32 @@ function App() {
     });
 
     uploadCommand.on('close', () => {
-      showToast("Finished saving to disk!");
+      setToast("Finished saving to disk!");
     })
 
   }
 
-  const [selectedPort, setSelectedPort] = useState<string | null>("null");
-  // const [selectedPort, setSelectedPort] = useState<string | null>(null);
+  // const [selectedPort, setSelectedPort] = useState<string | null>("null");
+  const [selectedPort, setSelectedPort] = useContext(PortContext);
 
   return (
     <>
       <Navbar clearData={clearData} syncData={syncData} />
-      <Toast activateToast={activateToast} toastText={toastText} />
-      {selectedPort == null ?
-        <PortSelection selectedPort={selectedPort} setSelectedPort={setSelectedPort} setToast={showToast} />
-        :
-        <div className={'flex flex-col w-full items-center min-h-screen pb-24 bg-[#292828] overflow-hidden'}>
-          {activeView ?
-            <ActiveView activeView={activeView} setActiveView={setActiveView} />
-            :
-            <>
-              <CreateCard editView={editView} createCard={createCard} rfid={rfid} setCreateName={setCreateName} setCreatePassword={setCreatePassword} />
-              <code onClick={() => { setSelectedPort(null) }} className='mt-24 cursor-pointer transition duration-300 hover:scale-110 bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>Port Selected: </strong>{selectedPort}</code>
-              <button className="text-gray text-center p-3 m-3 bg-green-700 rounded-lg text-white"
-                onClick={() => setActiveView(!activeView)}>Activate</button>
-              <div className='flex flex-row flex-wrap items-center'>
-                {editView ?
-                  <EditView cards={cards} setEditName={setEditName} setEditPassword={setEditPassword} setEditView={setEditView} saveCard={saveCard} index={index} />
-                  :
-                  <>
-                    {/* {cards.length == 0 ?
+      <div className={'flex flex-col w-full items-center min-h-screen pb-24 bg-[#292828] overflow-hidden'}>
+        {activeView ?
+          <ActiveView activeView={activeView} setActiveView={setActiveView} />
+          :
+          <>
+            <CreateCard editView={editView} createCard={createCard} rfid={rfid} setCreateName={setCreateName} setCreatePassword={setCreatePassword} />
+            <code onClick={() => { setSelectedPort(null) }} className='mt-24 cursor-pointer transition duration-300 hover:scale-110 bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>Port Selected: </strong>{selectedPort}</code>
+            <button className="text-gray text-center p-3 m-3 bg-green-700 rounded-lg text-white"
+              onClick={() => setActiveView(!activeView)}>Activate</button>
+            <div className='flex flex-row flex-wrap items-center'>
+              {editView ?
+                <EditView cards={cards} setEditName={setEditName} setEditPassword={setEditPassword} setEditView={setEditView} saveCard={saveCard} index={index} />
+                :
+                <>
+                  {/* {cards.length == 0 ?
                       <div className=" py-24 justify-center w-full h-full rounded-lg text-white">No cards!
                       </div>
                       :
@@ -305,13 +299,12 @@ function App() {
                       //   )
                       // })
                     } */}
-                  </>
-                }
-              </div>
-            </>
-          }
-        </div>
-      }
+                </>
+              }
+            </div>
+          </>
+        }
+      </div>
     </>
   )
 }
