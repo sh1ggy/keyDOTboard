@@ -8,3 +8,4 @@
 - Run `pyinstaller --distpath ./dist merged.spec`
 - Drag in the esptool binary from `https://github.com/espressif/esptool` for your platform into the dist folder
 - rename folder to match os tag
+- The execs need to be in the same folder other wise you end up with error: `[55752] Archive not found: D:\keyDOTboard\src-tauri\bin\merged_dist\parttool-x86_64-pc-windows-msv`

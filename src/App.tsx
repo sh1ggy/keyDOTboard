@@ -50,7 +50,8 @@ function App() {
   });
 
   const [rfid, setRfid] = useState<string | null>(null);
-  const [cards, setCards] = usePersistedState<Card[]>(CARDS_SEED, "savedCards");
+  // const [cards, setCards] = usePersistedState<Card[]>(CARDS_SEED, "savedCards");
+  const [cards, setCards] = useState<Card[]>([]);
 
   const [createName, setCreateName] = useState("");
   const [createPassword, setCreatePassword] = useState("");
