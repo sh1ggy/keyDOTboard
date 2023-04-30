@@ -4,6 +4,9 @@ import { getPorts } from "../services";
 import { PortContext } from "./_app";
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
+import React from "react";
+import Terminal from "@/components/Terminal";
+
 
 export default function PortSelection() {
 	const [ports, setPorts] = useState<string[]>([]);
@@ -17,7 +20,7 @@ export default function PortSelection() {
 	}, [])
 	const savePort = async () => {
 		const listenServer = await invoke('start_listen_server', { "port": portOption });
-		
+
 		if (portOption != "") {
 			setSelectedPort(portOption);
 			setToast("Saved port!");
@@ -35,7 +38,7 @@ export default function PortSelection() {
 	}
 
 	return (
-		<div className="flex flex-col items-center bg-[#80809D] h-screen w-screen pt-24">
+		<div className="flex flex-col items-center bg-[#80809D] h-full w-screen pt-24">
 			<code className='bg-[#8F95A0] p-3 w-screen'><strong>UID: </strong>{ports}</code>
 			<ul className="text-sm text-black bg-[#51555D]" aria-labelledby="dropdownDefaultButton">
 				{
@@ -56,6 +59,7 @@ export default function PortSelection() {
 				}
 			</ul>
 			<code className='bg-[#8F95A0] w-screen p-3'><strong>PORT: </strong>{portOption}</code>
+			<Terminal />
 			<button
 				onClick={savePort}
 				className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-black py-3">
