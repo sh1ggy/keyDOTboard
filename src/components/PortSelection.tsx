@@ -14,7 +14,7 @@ export function PortSelection(props: PortsProps) {
 	const [portOption, setPortOption] = useState("");
 	useEffect(() => {
 		getPortsValue();
-	},[])
+	}, [])
 	const savePort = async () => {
 		const listenServer = await invoke('start_listen_server', { "port": portOption });
 		if (portOption != "") {
@@ -26,10 +26,10 @@ export function PortSelection(props: PortsProps) {
 		}
 	}
 	const getPortsValue = async () => {
-    const getPortsValue = await getPorts();
-    setPorts(getPortsValue);
-    props.setToast("Got ports!");
-  }
+		const getPortsValue = await getPorts();
+		setPorts(getPortsValue);
+		props.setToast("Got ports!");
+	}
 
 
 	return (
