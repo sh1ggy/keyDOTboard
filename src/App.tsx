@@ -11,7 +11,6 @@ import eyeOnIcon from './assets/eyeOn.svg'
 import { invoke } from '@tauri-apps/api/tauri'
 import { Command } from '@tauri-apps/api/shell'
 import { PortSelection } from './components/PortSelection'
-import { BaseDirectory, createDir, writeFile } from '@tauri-apps/api/fs';
 import { usePersistedState } from './hooks/usePersistedState'
 
 
