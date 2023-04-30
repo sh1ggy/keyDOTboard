@@ -17,6 +17,7 @@ export default function PortSelection() {
 	}, [])
 	const savePort = async () => {
 		const listenServer = await invoke('start_listen_server', { "port": portOption });
+		
 		if (portOption != "") {
 			setSelectedPort(portOption);
 			setToast("Saved port!");
@@ -29,6 +30,7 @@ export default function PortSelection() {
 	const getPortsValue = async () => {
 		const getPortsValue = await getPorts();
 		setPorts(getPortsValue);
+		setSelectedPort(ports[0])
 		setToast("Got ports!");
 	}
 
