@@ -16,6 +16,9 @@
       "fs": {
         "all": true
       },
+      "os": {
+        "all": true
+      },
       "path": {
         "all": true
       },
@@ -52,7 +55,6 @@
       },
       "externalBin": [
         "bin/dist/parttool"
-
       ],
       "icon": [
         "icons/32x32.png",
