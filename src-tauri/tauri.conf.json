@@ -15,10 +15,14 @@
       "fs": {
         "all": true
       },
+      "os": {
+        "all": true
+      },
       "path": {
         "all": true
       },
       "shell": {
+        "all": true,
         "execute": true,
         "sidecar": true,
         "open": true,
@@ -50,7 +54,6 @@
       },
       "externalBin": [
         "bin/dist/parttool"
-
       ],
       "icon": [
         "icons/32x32.png",

@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-#Checkout here for better examples
+# Checkout here for better examples
 # https://github.com/pyinstaller/pyinstaller/blob/develop/tests/functional/specs/test_multipackage1.spec
 
 parttool_a = Analysis(
