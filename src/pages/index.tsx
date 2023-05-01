@@ -1,13 +1,12 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation';
 
-import { listen } from '@tauri-apps/api/event'
-import { invoke } from '@tauri-apps/api/tauri'
-import { Command } from '@tauri-apps/api/shell'
-import { getPorts, reflashPartition } from '../services'
+// import { listen } from '@tauri-apps/api/event'
+// import { invoke } from '@tauri-apps/api/tauri'
+// import { Command } from '@tauri-apps/api/shell'
+import { getPorts, reflashPartition, syncData } from '../services'
 
 import wlogo from '/wlogo.svg'
-import dynamic from 'next/dynamic'
 const saveIcon = '/save.svg'
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -77,39 +76,21 @@ function App() {
 
   useEffect(() => {
     // Listen to tauri events
-    const unlistenRFID = listen<string>("rfid", (e) => {
-      console.log(e.payload);
-      setRfid(e.payload);
-    })
-    const unlistenError = listen<error>("error", (e) => {
-      console.log(e.payload);
-      setError(e.payload)
-    })
+    // const unlistenRFID = listen<string>("rfid", (e) => {
+    //   console.log(e.payload);
+    //   setRfid(e.payload);
+    // })
+    // const unlistenError = listen<error>("error", (e) => {
+    //   console.log(e.payload);
+    //   setError(e.payload)
+    // })
 
-    const init = async () => {
-      await sleep(100);
-      // Getting cards from local storage
-      let localCards;
-      console.log("GETTING CARDS");
-      if (!localCards) {
-        console.log("NO CARDS");
-        console.log(JSON.stringify(cards));
-        setCards([]);
-      }
-      else {
-        console.log("CARDS HERE");
-        setCards(JSON.parse(localCards));
-        console.log(cards);
-      }
-    }
-
-    init();
     // setTimeout(() => init(), 2000);
 
     return (() => {
       // Unsubscribe from tauri events
-      unlistenRFID;
-      unlistenError;
+      // unlistenRFID;
+      // unlistenError;
     })
   }, []);
 
@@ -230,34 +211,33 @@ function App() {
     setToast("Cards cleared!");
   }
 
-  const syncData = async () => {
-    // Once this is done
-    const syncData = await invoke('save_cards_to_csv_command', { cards, port: selectedPort });
-    await sleep(200);
-    const binaryCommand = new Command(String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe`,
-      [String.raw`C:\Users\anhad\esp\esp-idf\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py`, `generate`, `data.csv`, `data.bin`, `0x5000`]);
+  // const syncData = async () => {
+  //   const syncData = await invoke('save_cards_to_csv_command', { cards, port: selectedPort });
+  //   await sleep(200);
+  //   const binaryCommand = new Command(String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe`,
+  //     [String.raw`C:\Users\anhad\esp\esp-idf\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py`, `generate`, `data.csv`, `data.bin`, `0x5000`]);
 
-    const binaryChild = await binaryCommand.spawn();
-    const uploadCommand = new Command(
-      String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
-      [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
+  //   const binaryChild = await binaryCommand.spawn();
+  //   const uploadCommand = new Command(
+  //     String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
+  //     [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
 
-    binaryCommand.stdout.on('data', line => console.log(`binarycommand stdout: "${line}"`));
-    binaryCommand.stderr.on('data', line => console.log(`binary command stderr: "${line}"`));
+  //   binaryCommand.stdout.on('data', line => console.log(`binarycommand stdout: "${line}"`));
+  //   binaryCommand.stderr.on('data', line => console.log(`binary command stderr: "${line}"`));
 
-    uploadCommand.stdout.on('data', line => console.log(`uploadcommand stdout: "${line}"`));
-    uploadCommand.stderr.on('data', line => console.log(`uplaodcommand stderr: "${line}"`));
+  //   uploadCommand.stdout.on('data', line => console.log(`uploadcommand stdout: "${line}"`));
+  //   uploadCommand.stderr.on('data', line => console.log(`uplaodcommand stderr: "${line}"`));
 
-    binaryCommand.on('close', () => {
-      uploadCommand.spawn();
-      console.log("Done");
-    });
+  //   binaryCommand.on('close', () => {
+  //     uploadCommand.spawn();
+  //     console.log("Done");
+  //   });
 
-    uploadCommand.on('close', () => {
-      setToast("Finished saving to disk!");
-    })
+  //   uploadCommand.on('close', () => {
+  //     setToast("Finished saving to disk!");
+  //   })
 
-  }
+  // }
 
   // const [selectedPort, setSelectedPort] = useState<string | null>("null");
   const [selectedPort, setSelectedPort] = useContext(PortContext);

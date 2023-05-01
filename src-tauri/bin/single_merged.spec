@@ -48,23 +48,17 @@ parttool_exe = EXE(
     parttool_a.binaries,
     parttool_a.zipfiles,
     parttool_a.datas,
-    #parttool_a.dependencies,
+    parttool_a.dependencies,
 
     [],
     name='parttool-x86_64-pc-windows-msvc',
-    debug=False,
-    bootloader_ignore_signals=False,
+    debug=True,
     strip=False,
-    upx=True,
+    upx=False,
     console=True,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
 
-    upx_exclude=[],
-    runtime_tmdir=None,
+    #upx_exclude=[],
+    #runtime_tmdir=None,
 )
 
 nvs_gen_z = PYZ(nvs_gen_a.pure, nvs_gen_a.zipped_data, cipher=block_cipher)
@@ -85,7 +79,7 @@ nvs_gen_exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=False,
+    upx=True,
     console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -94,6 +88,6 @@ nvs_gen_exe = EXE(
     entitlements_file=None,
 
     upx_exclude=[],
-    runtime_tmdir=None,
+    #runtime_tmdir=None,
 )
 

@@ -39,9 +39,10 @@ async fn command_name(state: tauri::State<'_, MyState>) -> Result<(), String> {
 async fn test<R: Runtime>(
     app: tauri::AppHandle<R>,
     window: tauri::Window<R>,
-) -> Result<(), String> {
-    println!("test: {:#?}", app.config());
-    Ok(())
+) -> Result<String, String> {
+    let printThing = format!("test: {:#?}", app.config());
+    println!("{printThing}");
+    Ok(printThing)
 }
 
 #[tauri::command]
@@ -131,6 +132,20 @@ async fn save_cards_to_csv_command(
 }
 
 #[tauri::command]
+async fn get_current_working_dir() -> Result<String, String> {
+    match std::env::current_exe() {
+        Ok(exe_path) => match exe_path.parent() {
+            Some(parent_dir) => match parent_dir.to_str() {
+                Some(parent_dir_str) => Ok(parent_dir_str.to_owned()),
+                None => Err("Could not convert parent directory path to string".to_owned()),
+            },
+            None => Err("Could not get parent directory of current executable".to_owned()),
+        },
+        Err(e) => Err(format!("Could not get path of current executable: {}", e)),
+    }
+}
+
+#[tauri::command]
 async fn start_listen_server(window: tauri::Window, port: String) -> Result<(), String> {
     let app = window.app_handle().clone();
 
@@ -156,7 +171,8 @@ fn main() {
             save_cards_to_csv_command,
             get_ports,
             start_listen_server,
-            test
+            test,
+            get_current_working_dir
         ])
         // .setup(|app| setup(app))
         .run(tauri::generate_context!())
