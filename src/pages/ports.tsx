@@ -47,7 +47,7 @@ export default function PortSelection() {
 
 
 	return (
-		<div className="flex flex-col items-center bg-[#80809D] h-full w-screen pt-24">
+		<div className="flex flex-col items-center bg-[#292828] h-full w-screen pt-24">
 			<code className='bg-[#8F95A0] p-3 w-screen'><strong>UID: </strong>{ports}</code>
 			<ul className="text-sm text-black bg-[#51555D]" aria-labelledby="dropdownDefaultButton">
 				{
@@ -71,7 +71,7 @@ export default function PortSelection() {
 			<CommandTerminal className="p-6" commandObj={getDataCommand} />
 			<button
 				onClick={savePort}
-				className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-black py-3">
+				className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-700 py-3">
 				Save</button>
 		</div>
 	)
