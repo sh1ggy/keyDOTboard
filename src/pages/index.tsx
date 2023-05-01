@@ -5,16 +5,11 @@ import { useRouter } from 'next/navigation';
 // import { invoke } from '@tauri-apps/api/tauri'
 // import { Command } from '@tauri-apps/api/shell'
 import { getPorts, reflashPartition, syncData } from '../services'
-import { EditView } from '@/components/EditView'
 import { CardsView, CardsViewProps } from '@/components/CardsView'
 import { Navbar } from '@/components/Navbar'
 import { CardsContext, PortContext } from './_app'
 import { useToast } from '@/hooks/useToast';
-
-// interface RFIDPayload {
-//   uid: string;
-//   error?: string;
-// }
+import { EditView } from '@/components/EditView';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -42,7 +37,6 @@ function App() {
 
   const [rfid, setRfid] = useState<string | null>(null);
   // const [cards, setCards] = useState<Card[]>([]);
-  const [activeView, setActiveView] = useState(false);
   const [index, setIndex] = useState(0);
 
   const [editPassword, setEditPassword] = useState("");
@@ -148,6 +142,7 @@ function App() {
       setToast("Card saved!");
       return tempCards;
     });
+    setEditView(!editView);
   }
 
   const clearData = async () => {
@@ -181,10 +176,10 @@ function App() {
   //   uploadCommand.on('close', () => {
   //     setToast("Finished saving to disk!");
   //   })
-
   // }
 
   const [selectedPort, setSelectedPort] = useContext(PortContext);
+  const [editView, setEditView] = useState(false);
 
   return (
     <>
@@ -200,7 +195,6 @@ function App() {
               className='cursor-pointer transition duration-300 hover:scale-105 bg-[#8F95A0] p-3 rounded-lg'><strong>Port Selected: </strong>{selectedPort}</code>
             <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-green-700 rounded-lg text-white"
               onClick={() => {
-                setActiveView(!activeView);
                 router.push('/active');
               }}>
               Activate
@@ -209,7 +203,6 @@ function App() {
           <div className='flex flex-col'>
             <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 ext-center p-3 m-3 bg-[#292828] rounded-lg text-white"
               onClick={() => {
-                setActiveView(!activeView);
                 router.push('/create');
               }}>
               Create Card
@@ -226,20 +219,26 @@ function App() {
                 Clear Data
               </button>
             </div>
-
           </div>
         </div>
-
         <div className='flex flex-row flex-wrap items-center'>
           {cards.length == 0 ?
             <div className="pt-24 text-white">No cards!
             </div>
             :
-            cards.map((c, i) => {
-              return (
-                <CardsView cards={cards} deleteCard={deleteCard} setIndex={setIndex} card={c} cardsIndex={i} />
-              )
-            })
+            <>
+              {editView ?
+                <EditView cards={cards} saveCard={saveCard} setEditName={setEditName} setEditPassword={setEditPassword} setEditView={setEditView} index={index}/>
+                :
+                <>
+                  {cards.map((c, i) => {
+                    return (
+                      <CardsView key={i} cards={cards} deleteCard={deleteCard} setIndex={setIndex} card={c} cardsIndex={i} setEditView={setEditView} editView={editView}/>
+                    )
+                  })}
+                </>
+              }
+            </>
           }
         </div>
       </div>
