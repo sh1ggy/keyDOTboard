@@ -5,6 +5,20 @@ block_cipher = None
 # Checkout here for better examples
 # https://github.com/pyinstaller/pyinstaller/blob/develop/tests/functional/specs/test_multipackage1.spec
 
+#TODO: get results from `rustc -Vv` and use host arg for exe name
+import subprocess
+def get_host_triplet():
+    output = subprocess.check_output(["rustc", "-Vv"])
+    output_str = output.decode("utf-8")
+
+    # parse the output string to extract the host value
+    for line in output_str.split("\n"):
+        if "host:" in line:
+            return line.split(":")[1].strip()
+
+
+host_suffix = "-%s" % get_host_triplet()
+
 parttool_a = Analysis(
     ['esp-idf/components/partition_table/parttool.py'],
     pathex=[],
@@ -37,7 +51,7 @@ nvs_gen_a = Analysis(
     noarchive=False,
 )
 # The binary output name arguemnt (3) has to be the same as the one provided in exe 
-MERGE( (parttool_a, 'parttool', 'parttool-x86_64-pc-windows-msvc'), (nvs_gen_a, 'nvs_partition_gen', 'nvs_gen-x86_64-pc-windows-msvc') )
+MERGE( (parttool_a, 'parttool', 'parttool' + host_suffix), (nvs_gen_a, 'nvs_partition_gen', 'nvs_gen' + host_suffix) )
 
 parttool_z = PYZ(parttool_a.pure, parttool_a.zipped_data, cipher=block_cipher)
 
@@ -51,8 +65,8 @@ parttool_exe = EXE(
     parttool_a.dependencies,
 
     [],
-    name='parttool-x86_64-pc-windows-msvc',
-    debug=True,
+    name='parttool' + host_suffix,
+    debug=False,
     strip=False,
     upx=False,
     console=True,
@@ -67,7 +81,6 @@ nvs_gen_exe = EXE(
     nvs_gen_z,
     nvs_gen_a.scripts,
 
-
     nvs_gen_a.binaries,
     nvs_gen_a.zipfiles,
     nvs_gen_a.datas,
@@ -75,7 +88,7 @@ nvs_gen_exe = EXE(
     nvs_gen_a.dependencies,
     
     [],
-    name='nvs_gen-x86_64-pc-windows-msvc',
+    name='nvs_gen' + host_suffix,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

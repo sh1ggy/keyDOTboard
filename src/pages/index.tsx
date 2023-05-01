@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 // import { listen } from '@tauri-apps/api/event'
 // import { invoke } from '@tauri-apps/api/tauri'
 // import { Command } from '@tauri-apps/api/shell'
-import { getPorts, reflashPartition, syncData } from '../services'
+import { getPorts, reflashPartition, test } from '../services'
 
 import wlogo from '/wlogo.svg'
 const saveIcon = '/save.svg'
@@ -244,7 +244,7 @@ function App() {
 
   return (
     <>
-      <Navbar clearData={clearData} syncData={syncData} />
+      <Navbar clearData={clearData} syncData={test} />
       <div className={'flex flex-col w-full items-center min-h-screen pb-24 bg-[#292828] overflow-hidden'}>
         {activeView ?
           <ActiveView activeView={activeView} setActiveView={setActiveView} />

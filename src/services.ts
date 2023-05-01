@@ -73,7 +73,7 @@ export const getTargetPlatformExtension = async () => {
 }
 
 
-export const syncData = async () => {
+export const test = async () => {
   const syncData = await invoke('test');
   console.log({ syncData });
   // await sleep(200);
