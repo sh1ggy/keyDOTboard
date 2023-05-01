@@ -5,27 +5,11 @@ import { useRouter } from 'next/navigation';
 // import { invoke } from '@tauri-apps/api/tauri'
 // import { Command } from '@tauri-apps/api/shell'
 import { getPorts, reflashPartition, test } from '../services'
-
-import wlogo from '/wlogo.svg'
-const saveIcon = '/save.svg'
-const eyeOffIcon = '/eyeOff.svg'
-const eyeOnIcon = '/eyeOn.svg'
-
-// import { PortSelection } from '@/components/PortSelection'
-
-// import { PortsProps } from './ports'
-import { ActiveView } from '@/components/ActiveView'
-import { EditView } from '@/components/EditView'
-import { CardsViewProps } from '@/components/CardsView'
-import { CreateCard } from '@/components/CreateCard'
+import { CardsView, CardsViewProps } from '@/components/CardsView'
 import { Navbar } from '@/components/Navbar'
-import { PortContext } from './_app'
+import { CardsContext, PortContext } from './_app'
 import { useToast } from '@/hooks/useToast';
-
-// interface RFIDPayload {
-//   uid: string;
-//   error?: string;
-// }
+import { EditView } from '@/components/EditView';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -40,11 +24,6 @@ interface error {
   message: string;
 }
 
-const CARDS_SEED: Card[] = [{
-  name: "Test",
-  password: "passwordle",
-  rfid: "112233"
-}];
 
 function App() {
   // const [rfidPayload, setRfidPayload] = useState<RFIDPayload>({
@@ -57,21 +36,14 @@ function App() {
   });
 
   const [rfid, setRfid] = useState<string | null>(null);
-  const [cards, setCards] = useState<Card[]>([]);
-
-  const [createName, setCreateName] = useState("");
-  const [createPassword, setCreatePassword] = useState("");
-  const [editView, setEditView] = useState(false);
-  const [activeView, setActiveView] = useState(false);
+  // const [cards, setCards] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
 
   const [editPassword, setEditPassword] = useState("");
   const [editName, setEditName] = useState("");
+  const [cards, setCards] = useContext(CardsContext);
 
-  const [activateToast, setActivateToast] = useState(false);
-  // const [toastText, setToastText] = useState("");
   const setToast = useToast();
-
   const router = useRouter();
 
   useEffect(() => {
@@ -102,74 +74,42 @@ function App() {
     console.log(`Received new rfid ${rfid}`);
   }, [rfid]);
 
-  // const showToast = useCallback((toastMessage: string) => {
-  //   setToastText(toastMessage);
-  //   setActivateToast(true);
-  //   setTimeout(() => setActivateToast(false), 2000);
-  // }, [toastText])
+  // const createCard = async (name: string, password: string) => {
+  //   // if (rfid == null) {
+  //   //   showToast("No RFID detected yet");
+  //   //   return;
+  //   // }
+  //   if (createName == "") {
+  //     setToast("Enter name");
+  //     return
+  //   };
+  //   if (createPassword == "") {
+  //     setToast("Enter password");
+  //     return
+  //   };
 
-  const createCard = async () => {
-    // if (rfid == null) {
-    //   showToast("No RFID detected yet");
-    //   return;
-    // }
-    if (createName == "") {
-      setToast("Enter name");
-      return
-    };
-    if (createPassword == "") {
-      setToast("Enter password");
-      return
-    };
-
-    const newCard: Card = {
-      name: createName,
-      password: createPassword,
-      rfid: "rfid",
-    }
-    let exitEarly = false;
-    setCards((prev) => {
-      // old code to increment the name 
-      // const cardName = newCard.name;
-      // let newCardName = cardName;
-
-      // for (const card of prev) {
-      //   if (cardName == card.name) {
-      //     showToast(`Duplicate card name ${cardName}`);
-
-      //     // Handle adding new element by increment
-      //     const lastChar = cardName.charAt(cardName.length - 1);
-      //     if (/\d/.test(lastChar)) {
-      //       cardName.slice(-1);
-      //       newCardName = `${cardName}${parseInt(lastChar) + 1}`
-      //       console.log("number at the end")
-      //     }
-      //     else {
-      //       newCardName = `${cardName}1`
-      //     }
-
-      //     console.log(newCardName);
-      //     newCard.name = newCardName;
-      //     return [...prev, newCard];
-      //   }
-      // }
-
-      const cardName = newCard.name;
-      for (const card of prev) {
-        if (cardName == card.name) {
-          console.log("dupe");
-          setToast(`Duplicate card name ${cardName}`);
-          exitEarly = true;
-          return prev;
-        }
-      }
-
-      const tempCards = [...prev, newCard];
-      return tempCards;
-    });
-    if (exitEarly) return;
-    if (await reflashPartition() && !exitEarly) setToast("Card created!");
-  }
+  //   const newCard: Card = {
+  //     name: createName,
+  //     password: createPassword,
+  //     rfid: "rfid",
+  //   }
+  //   let exitEarly = false;
+  //   setCards((prev) => {
+  //     const cardName = newCard.name;
+  //     for (const card of prev) {
+  //       if (cardName == card.name) {
+  //         console.log("dupe");
+  //         setToast(`Duplicate card name ${cardName}`);
+  //         exitEarly = true;
+  //         return prev;
+  //       }
+  //     }
+  //     const tempCards = [...prev, newCard];
+  //     return tempCards;
+  //   });
+  //   if (exitEarly) return;
+  //   if (await reflashPartition() && !exitEarly) setToast("Card created!");
+  // }
 
 
   const deleteCard = async (i: number) => {
@@ -200,9 +140,9 @@ function App() {
       const tempCards = [...prev];
       tempCards.splice(i, 1, editCard);
       setToast("Card saved!");
-      setEditView(false);
       return tempCards;
     });
+    setEditView(!editView);
   }
 
   const clearData = async () => {
@@ -236,45 +176,71 @@ function App() {
   //   uploadCommand.on('close', () => {
   //     setToast("Finished saving to disk!");
   //   })
-
   // }
 
-  // const [selectedPort, setSelectedPort] = useState<string | null>("null");
   const [selectedPort, setSelectedPort] = useContext(PortContext);
+  const [editView, setEditView] = useState(false);
 
   return (
     <>
-      <Navbar clearData={clearData} syncData={test} />
-      <div className={'flex flex-col w-full items-center min-h-screen pb-24 bg-[#292828] overflow-hidden'}>
-        {activeView ?
-          <ActiveView activeView={activeView} setActiveView={setActiveView} />
-          :
-          <>
-            <CreateCard editView={editView} createCard={createCard} rfid={rfid} setCreateName={setCreateName} setCreatePassword={setCreatePassword} />
-            <code onClick={() => { setSelectedPort(null) }} className='mt-24 cursor-pointer transition duration-300 hover:scale-110 bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>Port Selected: </strong>{selectedPort}</code>
-            <button className="text-gray text-center p-3 m-3 bg-green-700 rounded-lg text-white"
-              onClick={() => setActiveView(!activeView)}>Activate</button>
-            <div className='flex flex-row flex-wrap items-center'>
+      <Navbar />
+      <div className={'flex flex-col w-full items-center min-h-screen bg-[rgb(41,40,40)] overflow-hidden'}>
+        <div className="flex flex-col w-full items-center p-9 bg-[#5D616C] rounded-b-lg">
+          <div className='flex flex-row my-8'>
+            <code
+              onClick={() => {
+                setSelectedPort(null);
+                router.push('/ports');
+              }}
+              className='cursor-pointer transition duration-300 hover:scale-105 bg-[#8F95A0] p-3 rounded-lg'><strong>Port Selected: </strong>{selectedPort}</code>
+            <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-green-700 rounded-lg text-white"
+              onClick={() => {
+                router.push('/active');
+              }}>
+              Activate
+            </button>
+          </div>
+          <div className='flex flex-col'>
+            <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 ext-center p-3 m-3 bg-[#292828] rounded-lg text-white"
+              onClick={() => {
+                router.push('/create');
+              }}>
+              Create Card
+            </button>
+            <div className='flex flex-row'>
+              <button
+                onClick={test}
+                className="text-gray text-center h-full p-3 m-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 rounded-lg text-[white]">
+                Sync
+              </button>
+              <button
+                onClick={clearData}
+                className="text-gray text-center h-full p-3 m-3 text-[white]  bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" >
+                Clear Data
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className='flex flex-row flex-wrap items-center'>
+          {cards.length == 0 ?
+            <div className="pt-24 text-white">No cards!
+            </div>
+            :
+            <>
               {editView ?
-                <EditView cards={cards} setEditName={setEditName} setEditPassword={setEditPassword} setEditView={setEditView} saveCard={saveCard} index={index} />
+                <EditView cards={cards} saveCard={saveCard} setEditName={setEditName} setEditPassword={setEditPassword} setEditView={setEditView} index={index}/>
                 :
                 <>
-                  {/* {cards.length == 0 ?
-                      <div className=" py-24 justify-center w-full h-full rounded-lg text-white">No cards!
-                      </div>
-                      :
-                      <></>
-                      // cards.map((c, i) => {
-                      //   return (
-                      //     <CardsView cards={cards} deleteCard={deleteCard} setEditView={setEditView} setIndex={setIndex} card={c} cardsIndex={i} />
-                      //   )
-                      // })
-                    } */}
+                  {cards.map((c, i) => {
+                    return (
+                      <CardsView key={i} cards={cards} deleteCard={deleteCard} setIndex={setIndex} card={c} cardsIndex={i} setEditView={setEditView} editView={editView}/>
+                    )
+                  })}
                 </>
               }
-            </div>
-          </>
-        }
+            </>
+          }
+        </div>
       </div>
     </>
   )

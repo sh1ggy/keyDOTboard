@@ -66,7 +66,7 @@ export default function PortSelection() {
 
 
 	return (
-		<div className="flex flex-col items-center bg-[#80809D] h-full w-screen pt-24">
+		<div className="flex flex-col items-center bg-[#292828] h-full w-screen pt-24">
 
 			<button
 				onClick={test}
@@ -96,7 +96,7 @@ export default function PortSelection() {
 			<CommandTerminal enabled={isRunningCommand} className="p-6 flex w-auto" commandObj={getDataCommand} />
 			<button
 				onClick={savePort}
-				className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-black py-3">
+				className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-700 py-3">
 				Connect To Device</button>
 		</div>
 	)

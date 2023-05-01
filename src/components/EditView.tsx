@@ -1,5 +1,6 @@
 import { Card } from "@/pages";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { CardsContext } from "@/pages/_app";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -17,11 +18,12 @@ export interface EditViewProps {
 
 export function EditView(props: EditViewProps) {
 	const [showPassword, setShowPassword] = useState(false);
+	const [cards, setCards] = useContext(CardsContext);
 	
 	const setEditName = props.setEditName;
 	const setEditPassword = props.setEditPassword;
 	const setEditView = props.setEditView;
-	const cards = props.cards;
+	const saveCard = props.saveCard;
 	const index = props.index;
 	
 	return (
@@ -57,7 +59,7 @@ export function EditView(props: EditViewProps) {
 				<button onClick={() => setEditView(false)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
 					<img className='object-contain w-6 h-6 items-center' src={dismissIcon} />
 				</button>
-				<button onClick={() => props.saveCard(index)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+				<button onClick={() => saveCard(index)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
 					<img className='object-contain w-6 h-6 items-center' src={saveIcon} />
 				</button>
 			</div>
