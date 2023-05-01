@@ -45,11 +45,14 @@ export const getCurrentWorkingDir = async () => {
 }
 
 export const getEspBinDir = async () => {
+  // Neither of these work on anything but linux
+  // const runtimeDir = await path.runtimeDir();
+  // const notherLoc = await path.executableDir();
+
   const workingDir = await getCurrentWorkingDir();
-  const runtimeDir = await path.runtimeDir();
-  const notherLoc = await path.executableDir();
   const espBin = await path.join(workingDir, 'esptool');
-  console.log({ runtimeDir, notherLoc, workingDir, espBin });
+  console.log({workingDir, espBin});
+  
   return espBin;
 
 }

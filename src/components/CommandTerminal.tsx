@@ -9,9 +9,12 @@ export interface IProps {
     commandObj: React.MutableRefObject<Command | null>;
     className?: string;
 }
+export interface IState {
+
+}
 
 // https://github.com/robert-harbison/xterm-for-react/issues/7
-class CommandTerminal extends React.Component<IProps> {
+class CommandTerminal extends React.Component<IProps, IState> {
     // Since this is public, it can be referenced further by parent classes so ForwardRef isnt needed
     termRef: React.RefObject<HTMLDivElement>;
     terminal!: Terminal;
@@ -39,6 +42,7 @@ class CommandTerminal extends React.Component<IProps> {
 
     render() {
         return (
+            // TODO: Only apply classname and relevant props or extract out commandObj
             <div ref={this.termRef} {...this.props}></div>
         )
     }
