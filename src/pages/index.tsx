@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { getPorts, reflashPartition, test } from '../services'
 import { CardsView, CardsViewProps } from '@/components/CardsView'
 import { Navbar } from '@/components/Navbar'
-import { CardsContext, PortContext } from './_app'
+import { CardsContext, PortContext, SyncContext } from './_app'
 import { useToast } from '@/hooks/useToast';
 import { EditView } from '@/components/EditView';
 
@@ -163,7 +163,7 @@ function App() {
 
   const [selectedPort, setSelectedPort] = useContext(PortContext);
   const [editView, setEditView] = useState(false);
-  const [sync, setSync] = useState(false);
+  const [sync, setSync] = useContext(SyncContext);
 
   return (
     <>
@@ -217,7 +217,6 @@ function App() {
                 <EditView
                   setEditView={setEditView}
                   index={index}
-                  setSync={setSync}
                   editView={editView}
                 />
                 :

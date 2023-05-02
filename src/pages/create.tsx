@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/useToast";
 import { Card } from ".";
 import { reflashPartition } from "@/services";
-import { CardsContext } from "./_app";
+import { CardsContext, SyncContext } from "./_app";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -48,7 +48,7 @@ export default function CreateCard() {
 		if (await reflashPartition() && !exitEarly) {
 			setToast("Card created!");
 			router.push("/");
-			// setSync(true); TODO: set the sync state to true here
+			setSync(true); 
 		}
 	}
 
@@ -56,6 +56,8 @@ export default function CreateCard() {
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [cards, setCards] = useContext(CardsContext);
+	const [sync, setSync] = useContext(SyncContext);
+
 
 	// TODO: rfid globalcontext? since now it's not a part of props
 	const rfid = "";

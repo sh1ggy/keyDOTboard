@@ -1,7 +1,8 @@
 import { Card } from "@/pages";
-import { useContext, useState } from "react";
-import { CardsContext } from "@/pages/_app";
+import { useContext, useEffect, useState } from "react";
+import { CardsContext, SyncContext } from "@/pages/_app";
 import { useToast } from "@/hooks/useToast";
+import { usePrevious } from "@/hooks/usePrevious";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -12,12 +13,11 @@ export interface EditViewProps {
 	index: number,
 	setEditView: React.Dispatch<React.SetStateAction<boolean>>,
 	editView: boolean,
-	setSync: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 export function EditView(props: EditViewProps) {
 	const saveCard = (i: number) => {
-		setCards((prev) => {
+		setCards(() => {
 			console.log(prev);
 			const editCard: Card = {
 				name: name,
@@ -35,14 +35,22 @@ export function EditView(props: EditViewProps) {
 
 	const setToast = useToast();
 	const [cards, setCards] = useContext(CardsContext);
-	const [name, setName] = useState('');
-	const [password, setPassword] = useState('');
-	const [showPassword, setShowPassword] = useState(false);
+	const prev: any  = usePrevious(cards);
 	
 	const editView = props.editView;
 	const setEditView = props.setEditView;
 	const index = props.index;
-	const setSync = props.setSync;
+	const [sync, setSync] = useContext(SyncContext);
+
+
+	const [name, setName] = useState(cards[index].name);
+	const [password, setPassword] = useState(cards[index].password);
+	const [showPassword, setShowPassword] = useState(false);
+	
+
+	useEffect(() => {
+
+	}, [cards])
 
 	return (
 		<div className='flex flex-col mt-24 mx-6'>
