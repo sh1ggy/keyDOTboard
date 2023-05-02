@@ -9,11 +9,7 @@ import { CardsContext } from "./_app";
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
 
-export interface CreateCardProps {
-	rfid: string | null,
-}
-
-export default function CreateCard(props: CreateCardProps) {
+export default function CreateCard() {
 	const setToast = useToast();
 	const createCard = async (name: string, password: string, setCards: React.Dispatch<React.SetStateAction<Card[]>>) => {
 		if (rfid == null) {
@@ -52,6 +48,7 @@ export default function CreateCard(props: CreateCardProps) {
 		if (await reflashPartition() && !exitEarly) {
 			setToast("Card created!");
 			router.push("/");
+			// setSync(true); TODO: set the sync state to true here
 		}
 	}
 
@@ -60,7 +57,8 @@ export default function CreateCard(props: CreateCardProps) {
 	const [showPassword, setShowPassword] = useState(false);
 	const [cards, setCards] = useContext(CardsContext);
 
-	const rfid = props.rfid;
+	// TODO: rfid globalcontext? since now it's not a part of props
+	const rfid = "";
 	const router = useRouter();
 	return (
 		<>

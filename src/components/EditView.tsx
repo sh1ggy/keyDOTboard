@@ -1,6 +1,7 @@
 import { Card } from "@/pages";
 import { useContext, useState } from "react";
 import { CardsContext } from "@/pages/_app";
+import { useToast } from "@/hooks/useToast";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -8,41 +9,58 @@ const dismissIcon = '/dismiss.svg'
 const saveIcon = '/save.svg'
 
 export interface EditViewProps {
-	cards: Card[],
 	index: number,
-	saveCard: (i: number) => void,
-	setEditName: React.Dispatch<React.SetStateAction<string>>,
-	setEditPassword: React.Dispatch<React.SetStateAction<string>>,
 	setEditView: React.Dispatch<React.SetStateAction<boolean>>,
+	editView: boolean,
+	setSync: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 export function EditView(props: EditViewProps) {
-	const [showPassword, setShowPassword] = useState(false);
+	const saveCard = (i: number) => {
+		setCards((prev) => {
+			console.log(prev);
+			const editCard: Card = {
+				name: name,
+				password: password,
+				rfid: prev[i].rfid,
+			}
+			const tempCards = [...prev];
+			tempCards.splice(i, 1, editCard);
+			setToast("Card saved!");
+			return tempCards;
+		});
+		setEditView(!editView);
+		setSync(true);
+	}
+
+	const setToast = useToast();
 	const [cards, setCards] = useContext(CardsContext);
+	const [name, setName] = useState('');
+	const [password, setPassword] = useState('');
+	const [showPassword, setShowPassword] = useState(false);
 	
-	const setEditName = props.setEditName;
-	const setEditPassword = props.setEditPassword;
+	const editView = props.editView;
 	const setEditView = props.setEditView;
-	const saveCard = props.saveCard;
 	const index = props.index;
-	
+	const setSync = props.setSync;
+
 	return (
 		<div className='flex flex-col mt-24 mx-6'>
-			<div className="justify-center text-white text-xl p-6  bg-[#8B89AC] rounded-t-lg" >Editing Card</div>
+			<div className="justify-center text-white text-xl p-6  bg-[#213352] rounded-t-lg">Editing Card</div>
 			<div className="justify-center text-white p-6 bg-[#5D616C] rounded-b-lg ">
 				<p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">ID: {cards[index].rfid}</p>
 				<input
 					type='text'
 					placeholder={cards[index].name}
 					className="input w-full max-w-xs bg-[#5D616C] text-white text-dim-gray p-3 rounded-lg"
-					onChange={e => { setEditName(e.target.value) }}
+					onChange={e => { setName(e.target.value) }}
 				/>
 				<div className='flex flex-row items-center pb-3'>
 					<input
 						type={`${showPassword ? 'text' : 'password'}`}
 						placeholder="enter password..."
 						className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 rounded-l-lg"
-						onChange={e => { setEditPassword(e.target.value) }}
+						onChange={e => { setPassword(e.target.value) }}
 					/>
 					<button
 						onClick={() => {
