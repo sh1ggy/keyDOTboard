@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation';
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { Card } from '.';
+import Head from 'next/head';
 type portDef = string | null;
+type cardsDef = Card[];
 
 interface IProps {
   children: ReactNode;
@@ -18,23 +20,23 @@ export const SafeHydrate: FunctionComponent<IProps> = ({ children }) => {
   )
 }
 
-const CARDS_SEED: Card[] = [{
-  name: "Test",
-  password: "passwordle",
-  rfid: "112233"
-}];
+// const CARDS_SEED: Card[] = [{
+//   name: "Test",
+//   password: "passwordle",
+//   rfid: "112233"
+// }];
 
 // @ts-ignore
 export const PortContext = React.createContext<[portDef, React.Dispatch<React.SetStateAction<portDef>>]>(null);
 // @ts-ignore
-export const CardsContext = React.createContext<[Card[], React.Dispatch<React.SetStateAction<Card[]>>]>(null);
+export const CardsContext = React.createContext<[cardsDef, React.Dispatch<React.SetStateAction<cardsDef>>]>(null);
 // @ts-ignore
-export const SyncContext = React.createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>]>(false);
+export const NewCardsContext = React.createContext<[cardsDef, React.Dispatch<React.SetStateAction<cardsDef>>]>(null);
 
 export default function App({ Component, pageProps }: AppProps) {
   const portState = useState<portDef>(null);
-  const cardsState = useState<Card[]>(CARDS_SEED);
-  const syncState = useState<boolean>(false);
+  const cardsState = useState<cardsDef>([]);
+  const newCardsState = useState<cardsDef>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -46,9 +48,12 @@ export default function App({ Component, pageProps }: AppProps) {
     <GlobalToastProvider>
       <PortContext.Provider value={portState}>
         <CardsContext.Provider value={cardsState}>
-          <SyncContext.Provider value={syncState}>
+          <NewCardsContext.Provider value={newCardsState}>
+            <Head>
+              <script src="http://localhost:8097"></script>
+            </Head>
             <Component {...pageProps} />
-          </SyncContext.Provider>
+          </NewCardsContext.Provider>
         </CardsContext.Provider>
       </PortContext.Provider>
     </GlobalToastProvider>

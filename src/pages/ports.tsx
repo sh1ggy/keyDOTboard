@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { getCurrentWorkingDir, getEspBinDir, getPorts, getReadBinDir, startImports, startlistenServer, test } from "../services";
+import { getCurrentWorkingDir, getEspBinDir, getPorts, getReadBinDir, startImports, startlistenServer, test } from "@/lib/services";
 import { PortContext } from "./_app";
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
@@ -57,6 +57,7 @@ export default function PortSelection() {
 			console.log(`Saved BinaryFile in: ${readFileBin}`);
 			setToast(`Saved BinaryFile in: ${readFileBin}`);
 			setRunningCommand(false);
+			router.push("/");
 		})
 
 		//Run Analyze binary
@@ -71,7 +72,6 @@ export default function PortSelection() {
 		// await startlistenServer(selectedPort);
 
 
-		// router.push("/");
 	}
 
 
