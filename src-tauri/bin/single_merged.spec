@@ -50,8 +50,26 @@ nvs_gen_a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
+
+analyze_nvs_a = Analysis(
+    ['esp-idf/components/partition_table/analyze_nvs.py'],
+    pathex=[],
+    binaries=[],
+    datas=[],
+    hiddenimports=[],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
 # The binary output name arguemnt (3) has to be the same as the one provided in exe 
-MERGE( (parttool_a, 'parttool', 'parttool' + host_suffix), (nvs_gen_a, 'nvs_partition_gen', 'nvs_gen' + host_suffix) )
+MERGE( (parttool_a, 'parttool', 'parttool' + host_suffix), (nvs_gen_a, 'nvs_partition_gen', 'nvs_gen' + host_suffix), (analyze_nvs_a, 'analyze_nvs', 'analyze_nvs' + host_suffix))
 
 parttool_z = PYZ(parttool_a.pure, parttool_a.zipped_data, cipher=block_cipher)
 
@@ -104,3 +122,23 @@ nvs_gen_exe = EXE(
     #runtime_tmdir=None,
 )
 
+
+analyze_nvs_z = PYZ(parttool_a.pure, parttool_a.zipped_data, cipher=block_cipher)
+
+
+analyze_nvs_exe = EXE(
+    analyze_nvs_z,
+    analyze_nvs_a.scripts,
+
+    analyze_nvs_a.binaries,
+    analyze_nvs_a.zipfiles,
+    analyze_nvs_a.datas,
+    analyze_nvs_a.dependencies,
+
+    [],
+    name='analyze_nvs' + host_suffix,
+    debug=False,
+    strip=False,
+    upx=False,
+    console=True,
+)
