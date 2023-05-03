@@ -45,8 +45,17 @@ export default function PortSelection() {
 
 		const childProcess = await getDataCommand.current.spawn();
 		setRunningCommand(true);
-		getDataCommand.current.on('close', () => {
+		getDataCommand.current.stdout.on("data", (data: string) => {
+			// This should be in the stderror state but its not for some reason, 
+			// try and get raw stdout pipe from tauri first to detect "Connecting......." first, then try and fix from python side
+			const bootModeErrorString = "Wrong boot mode detected (0x13)";
+			if (data.includes(bootModeErrorString)) {
+				// Ping the user that they need to hold down the boot button and try again
+			}
+		})
 
+		getDataCommand.current.on('close', () => {
+			setRunningCommand(false);
 		})
 
 		//Run Analyze binary
