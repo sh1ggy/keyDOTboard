@@ -3,19 +3,14 @@ import { useContext, useEffect, useState } from "react";
 import { CardsContext } from "@/pages/_app";
 import { useToast } from "@/hooks/useToast";
 import { usePrevious } from "@/hooks/usePrevious";
+import { useRouter } from "next/router";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
 const dismissIcon = '/dismiss.svg'
 const saveIcon = '/save.svg'
 
-export interface EditViewProps {
-	index: number,
-	setEditView: React.Dispatch<React.SetStateAction<boolean>>,
-	editView: boolean,
-}
-
-export function EditView(props: EditViewProps) {
+export default function EditView() {
 	const saveCard = (i: number) => {
 		let exitEarly = false;
 		setCards((prev) => {
@@ -39,20 +34,13 @@ export function EditView(props: EditViewProps) {
 			return tempCards;
 		});
 		if (exitEarly) return;
-		setEditView(!editView);
-		setSync(true);
 	}
 
 	const setToast = useToast();
 	const [cards, setCards] = useContext(CardsContext);
-	// const prev: any  = usePrevious(cards);
-
-	const editView = props.editView;
-	const setEditView = props.setEditView;
-	const index = props.index;
-	const [sync, setSync] = useContext(SyncContext);
-
-
+  const router = useRouter();
+  
+  const index = parseInt(router.query.id as string);
 	const [name, setName] = useState(cards[index].name);
 	const [password, setPassword] = useState(cards[index].password);
 	const [showPassword, setShowPassword] = useState(false);
@@ -101,7 +89,7 @@ export function EditView(props: EditViewProps) {
 					</div>
 
 				</form>
-				<button onClick={() => setEditView(false)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+				<button onClick={() => router.push("/")} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
 					<img className='object-contain w-6 h-6 items-center' src={dismissIcon} />
 				</button>
 				<button onClick={() => saveCard(index)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">

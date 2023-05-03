@@ -3,15 +3,15 @@ import { useContext, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/useToast";
 import { Card } from ".";
-import { reflashPartition } from "@/services";
-import { CardsContext, SyncContext } from "./_app";
+import { reflashPartition } from "@/lib/services";
+import { CardsContext, NewCardsContext } from "./_app";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
 
 export default function CreateCard() {
 	const setToast = useToast();
-	const createCard = async (name: string, password: string, setCards: React.Dispatch<React.SetStateAction<Card[]>>) => {
+	const createCard = async (name: string, password: string) => {
 		if (rfid == null) {
 			setToast("No RFID detected yet");
 			return;
@@ -31,7 +31,7 @@ export default function CreateCard() {
 			rfid: "rfid",
 		}
 		let exitEarly = false;
-		setCards((prev) => {
+		setNewCards((prev) => {
 			const cardName = newCard.name;
 			for (const card of prev) {
 				if (cardName == card.name) {
@@ -48,16 +48,14 @@ export default function CreateCard() {
 		if (await reflashPartition() && !exitEarly) {
 			setToast("Card created!");
 			router.push("/");
-			setSync(true);
 		}
 	}
 
 	const [name, setName] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
-	const [cards, setCards] = useContext(CardsContext);
-	const [sync, setSync] = useContext(SyncContext);
-
+	// const [cards, setCards] = useContext(CardsContext);
+	const [newCards, setNewCards] = useContext(NewCardsContext);
 
 	// TODO: rfid detection function move here
 	const rfid = "";
@@ -74,7 +72,7 @@ export default function CreateCard() {
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
-						createCard(name, password, setCards)
+						createCard(name, password)
 					}}
 					className="flex flex-col items-center"
 					>
@@ -107,7 +105,7 @@ export default function CreateCard() {
 				<label htmlFor="create-card-modal" className="btn btn-ghost">
 					<button
 						onClick={() => {
-							createCard(name, password, setCards);
+							createCard(name, password);
 						}}
 						className="text-gray text-center p-3 m-3 bg-[#292828] rounded-lg text-[white]">Create Card
 					</button>
