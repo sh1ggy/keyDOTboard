@@ -29,7 +29,6 @@ export default function PortSelection() {
 
 	const savePort = async () => {
 
-
 		setSelectedPort(selectedPort);
 		setToast("Selected device at port: " + selectedPort);
 
@@ -40,8 +39,8 @@ export default function PortSelection() {
 		// Name of the sidecar has to match exactly to the scope name
 		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `COM4`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`,`--output`, binFileName]);
 
-		//   String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
-		//   [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
+		// //   String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
+		// //   [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
 
 		const childProcess = await getDataCommand.current.spawn();
 		setRunningCommand(true);
@@ -70,7 +69,7 @@ export default function PortSelection() {
 		// await startlistenServer(selectedPort);
 
 
-		// router.push("/");
+		router.push("/");
 	}
 
 

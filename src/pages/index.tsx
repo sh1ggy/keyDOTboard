@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { getPorts, reflashPartition, test } from '../services'
 import { CardsView, CardsViewProps } from '@/components/CardsView'
 import { Navbar } from '@/components/Navbar'
-import { CardsContext, PortContext } from './_app'
+import { CardsContext, PortContext, SyncContext } from './_app'
 import { useToast } from '@/hooks/useToast';
 import { EditView } from '@/components/EditView';
 
@@ -124,26 +124,7 @@ function App() {
   }
 
   // TODO: retry flash button
-
-  // TODO: Consider structural change to only be able to edit one card only (maybe modal/edit screen) 
-  // in order to not arrive at a race condition of trying to save multiple cards at once
-  // Lock access to mutating / clicking edit / deleting any cards when commiting a transaction 
-  const saveCard = (i: number) => {
-    // await (new Command('sleep', ['ping -n 5 127.0.0.1']));
-    setCards((prev) => {
-      const editCard: Card = {
-        name: editName,
-        // Is this the only field that is changing?
-        password: editPassword,
-        rfid: prev[i].rfid,
-      }
-      const tempCards = [...prev];
-      tempCards.splice(i, 1, editCard);
-      setToast("Card saved!");
-      return tempCards;
-    });
-    setEditView(!editView);
-  }
+  
 
   const clearData = async () => {
     // const clearData = await invoke('start_listen_server', { "port": selectedPort });
@@ -176,10 +157,13 @@ function App() {
   //   uploadCommand.on('close', () => {
   //     setToast("Finished saving to disk!");
   //   })
+  //   TODO: set sync state to false here to stop bouncy!
+  //   setSync(false);
   // }
 
   const [selectedPort, setSelectedPort] = useContext(PortContext);
   const [editView, setEditView] = useState(false);
+  const [sync, setSync] = useContext(SyncContext);
 
   return (
     <>
@@ -192,7 +176,9 @@ function App() {
                 setSelectedPort(null);
                 router.push('/ports');
               }}
-              className='cursor-pointer transition duration-300 hover:scale-105 bg-[#8F95A0] p-3 rounded-lg'><strong>Port Selected: </strong>{selectedPort}</code>
+              className='cursor-pointer transition duration-300 hover:scale-105 bg-[#8F95A0] p-3 rounded-lg'>
+              <strong>Port Selected: </strong>{selectedPort}
+            </code>
             <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-green-700 rounded-lg text-white"
               onClick={() => {
                 router.push('/active');
@@ -210,7 +196,7 @@ function App() {
             <div className='flex flex-row'>
               <button
                 onClick={test}
-                className="text-gray text-center h-full p-3 m-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 rounded-lg text-[white]">
+                className={`${sync ? 'animate-bounce' : ''} text-gray text-center h-full p-3 m-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 rounded-lg text-[white]`}>
                 Sync
               </button>
               <button
@@ -221,22 +207,26 @@ function App() {
             </div>
           </div>
         </div>
-        <div className='flex flex-row flex-wrap items-center'>
+        <div className='flex flex-row flex-wrap items-center pb-24'>
           {cards.length == 0 ?
             <div className="pt-24 text-white">No cards!
             </div>
             :
             <>
               {editView ?
-                <EditView cards={cards} saveCard={saveCard} setEditName={setEditName} setEditPassword={setEditPassword} setEditView={setEditView} index={index}/>
+                <EditView
+                  setEditView={setEditView}
+                  index={index}
+                  editView={editView}
+                />
                 :
-                <>
+                <div className='flex flex-wrap items-center justify-center'>
                   {cards.map((c, i) => {
                     return (
-                      <CardsView key={i} cards={cards} deleteCard={deleteCard} setIndex={setIndex} card={c} cardsIndex={i} setEditView={setEditView} editView={editView}/>
+                      <CardsView key={i} cards={cards} deleteCard={deleteCard} setIndex={setIndex} card={c} cardsIndex={i} setEditView={setEditView} editView={editView} />
                     )
                   })}
-                </>
+                </div>
               }
             </>
           }

@@ -28,10 +28,13 @@ const CARDS_SEED: Card[] = [{
 export const PortContext = React.createContext<[portDef, React.Dispatch<React.SetStateAction<portDef>>]>(null);
 // @ts-ignore
 export const CardsContext = React.createContext<[Card[], React.Dispatch<React.SetStateAction<Card[]>>]>(null);
+// @ts-ignore
+export const SyncContext = React.createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>]>(false);
 
 export default function App({ Component, pageProps }: AppProps) {
   const portState = useState<portDef>(null);
   const cardsState = useState<Card[]>(CARDS_SEED);
+  const syncState = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,7 +46,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <GlobalToastProvider>
       <PortContext.Provider value={portState}>
         <CardsContext.Provider value={cardsState}>
-          <Component {...pageProps} />
+          <SyncContext.Provider value={syncState}>
+            <Component {...pageProps} />
+          </SyncContext.Provider>
         </CardsContext.Provider>
       </PortContext.Provider>
     </GlobalToastProvider>
