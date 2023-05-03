@@ -17,18 +17,28 @@ export interface EditViewProps {
 
 export function EditView(props: EditViewProps) {
 	const saveCard = (i: number) => {
+		let exitEarly = false;
 		setCards((prev) => {
-			console.log(prev);
 			const editCard: Card = {
 				name: name,
 				password: password,
 				rfid: prev[i].rfid,
+			}
+			const cardName = editCard.name;
+			for (const card of prev) {
+				if (cardName == card.name) {
+					console.log("dupe");
+					setToast(`Duplicate card name ${cardName}`);
+					exitEarly = true;
+					return prev;
+				}
 			}
 			const tempCards = [...prev];
 			tempCards.splice(i, 1, editCard);
 			setToast("Card saved!");
 			return tempCards;
 		});
+		if (exitEarly) return;
 		setEditView(!editView);
 		setSync(true);
 	}
@@ -36,7 +46,7 @@ export function EditView(props: EditViewProps) {
 	const setToast = useToast();
 	const [cards, setCards] = useContext(CardsContext);
 	// const prev: any  = usePrevious(cards);
-	
+
 	const editView = props.editView;
 	const setEditView = props.setEditView;
 	const index = props.index;
@@ -46,7 +56,7 @@ export function EditView(props: EditViewProps) {
 	const [name, setName] = useState(cards[index].name);
 	const [password, setPassword] = useState(cards[index].password);
 	const [showPassword, setShowPassword] = useState(false);
-	
+
 
 	useEffect(() => {
 
@@ -57,31 +67,40 @@ export function EditView(props: EditViewProps) {
 			<div className="justify-center text-white text-xl p-6  bg-[#213352] rounded-t-lg">Editing Card</div>
 			<div className="justify-center text-white p-6 bg-[#5D616C] rounded-b-lg ">
 				<p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">ID: {cards[index].rfid}</p>
-				<input
-					type='text'
-					placeholder={cards[index].name}
-					className="input w-full max-w-xs bg-[#747986] text-white text-dim-gray p-3 mb-3 border-neutral-300 rounded-lg"
-					onChange={e => { setName(e.target.value) }}
-				/>
-				<div className='flex flex-row items-center pb-3'>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						saveCard(index);
+					}}
+					className="flex flex-col items-center"
+				>
 					<input
-						type={`${showPassword ? 'text' : 'password'}`}
-						placeholder="enter password..."
-						className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 rounded-l-lg"
-						onChange={e => { setPassword(e.target.value) }}
+						type='text'
+						placeholder={cards[index].name}
+						className="input w-full max-w-xs bg-[#747986] text-white text-dim-gray p-3 mb-3 border-neutral-300 rounded-lg"
+						onChange={e => { setName(e.target.value) }}
 					/>
-					<button
-						onClick={() => {
-							setShowPassword(!showPassword);
-						}}
-						className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white p-3">
-						{showPassword ?
-							<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
-							:
-							<img className='object-contain w-6 h-6 items-center' src={eyeOffIcon} />
-						}
-					</button>
-				</div>
+					<div className='flex flex-row items-center pb-3'>
+						<input
+							type={`${showPassword ? 'text' : 'password'}`}
+							placeholder="enter password..."
+							className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 rounded-l-lg"
+							onChange={e => { setPassword(e.target.value) }}
+						/>
+						<button
+							onClick={() => {
+								setShowPassword(!showPassword);
+							}}
+							className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white p-3">
+							{showPassword ?
+								<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
+								:
+								<img className='object-contain w-6 h-6 items-center' src={eyeOffIcon} />
+							}
+						</button>
+					</div>
+
+				</form>
 				<button onClick={() => setEditView(false)} className="inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
 					<img className='object-contain w-6 h-6 items-center' src={dismissIcon} />
 				</button>
