@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { getCurrentWorkingDir, getEspBinDir, getPorts, startImports, startlistenServer, test } from "../services";
+import { getCurrentWorkingDir, getEspBinDir, getPorts, getReadBinDir, startImports, startlistenServer, test } from "../services";
 import { PortContext } from "./_app";
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
@@ -33,11 +33,11 @@ export default function PortSelection() {
 		setToast("Selected device at port: " + selectedPort);
 
 		const espBin = await getEspBinDir();
-
-		const binFileName = `"${Date.now()}_data.bin"`;
+		const readFileBin = await getReadBinDir();
+		
 		const Command = (await import('@tauri-apps/api/shell')).Command;
 		// Name of the sidecar has to match exactly to the scope name
-		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `COM4`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`,`--output`, binFileName]);
+		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`,`--output`, readFileBin]);
 
 		// //   String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
 		// //   [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
@@ -54,6 +54,8 @@ export default function PortSelection() {
 		})
 
 		getDataCommand.current.on('close', () => {
+			console.log(`Saved BinaryFile in: ${readFileBin}`);
+			setToast(`Saved BinaryFile in: ${readFileBin}`);
 			setRunningCommand(false);
 		})
 
@@ -69,7 +71,7 @@ export default function PortSelection() {
 		// await startlistenServer(selectedPort);
 
 
-		router.push("/");
+		// router.push("/");
 	}
 
 

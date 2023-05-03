@@ -56,6 +56,12 @@ export const getEspBinDir = async () => {
   return espBin;
 
 }
+export const getReadBinDir = async () => {
+  const appDir = await path.appLocalDataDir();
+  const binFileName = `${Date.now()}_data.bin`;
+  const binDir = await path.join(appDir, binFileName);
+  return binDir;
+}
 
 export const getTargetPlatformExtension = async () => {
   // let arch = await os.arch();
