@@ -207,7 +207,7 @@ function App() {
             </div>
           </div>
         </div>
-        <div className='flex flex-row flex-wrap items-center'>
+        <div className='flex flex-row flex-wrap items-center pb-24'>
           {cards.length == 0 ?
             <div className="pt-24 text-white">No cards!
             </div>
