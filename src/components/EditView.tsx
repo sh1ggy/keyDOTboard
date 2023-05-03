@@ -17,7 +17,7 @@ export interface EditViewProps {
 
 export function EditView(props: EditViewProps) {
 	const saveCard = (i: number) => {
-		setCards(() => {
+		setCards((prev) => {
 			console.log(prev);
 			const editCard: Card = {
 				name: name,
@@ -35,7 +35,7 @@ export function EditView(props: EditViewProps) {
 
 	const setToast = useToast();
 	const [cards, setCards] = useContext(CardsContext);
-	const prev: any  = usePrevious(cards);
+	// const prev: any  = usePrevious(cards);
 	
 	const editView = props.editView;
 	const setEditView = props.setEditView;
@@ -60,7 +60,7 @@ export function EditView(props: EditViewProps) {
 				<input
 					type='text'
 					placeholder={cards[index].name}
-					className="input w-full max-w-xs bg-[#5D616C] text-white text-dim-gray p-3 rounded-lg"
+					className="input w-full max-w-xs bg-[#747986] text-white text-dim-gray p-3 mb-3 border-neutral-300 rounded-lg"
 					onChange={e => { setName(e.target.value) }}
 				/>
 				<div className='flex flex-row items-center pb-3'>
@@ -74,7 +74,7 @@ export function EditView(props: EditViewProps) {
 						onClick={() => {
 							setShowPassword(!showPassword);
 						}}
-						className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white py-3">
+						className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white p-3">
 						{showPassword ?
 							<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
 							:

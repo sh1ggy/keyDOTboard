@@ -220,13 +220,13 @@ function App() {
                   editView={editView}
                 />
                 :
-                <>
+                <div className='flex flex-wrap items-center justify-center'>
                   {cards.map((c, i) => {
                     return (
                       <CardsView key={i} cards={cards} deleteCard={deleteCard} setIndex={setIndex} card={c} cardsIndex={i} setEditView={setEditView} editView={editView} />
                     )
                   })}
-                </>
+                </div>
               }
             </>
           }

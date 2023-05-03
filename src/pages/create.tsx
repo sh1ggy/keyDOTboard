@@ -59,7 +59,7 @@ export default function CreateCard() {
 	const [sync, setSync] = useContext(SyncContext);
 
 
-	// TODO: rfid globalcontext? since now it's not a part of props
+	// TODO: rfid detection function move here
 	const rfid = "";
 	const router = useRouter();
 	return (
@@ -83,13 +83,12 @@ export default function CreateCard() {
 					<input
 						type={`${showPassword ? 'text' : 'password'}`}
 						placeholder="enter password..."
-						className="input w-full max-w-xs bg-white text-dim-gray p-3 mb-3 rounded-l-lg"
+						className="input w-full bg-white text-dim-gray p-3 mb-3 rounded-l-lg"
 						onChange={e => { setPassword(e.target.value) }}
 					/>
 					<button
-						// disabled={editView}
 						onClick={() => { setShowPassword(!showPassword); }}
-						className="inline-flex text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white rounded-r-lg bg-white">
+						className="inline-flex text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white bg-white rounded-r-lg">
 						{showPassword ?
 							<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
 							:

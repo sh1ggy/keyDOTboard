@@ -4,7 +4,7 @@ export default function ActiveView() {
 	const router = useRouter();
 	return (
 		<div className="flex flex-col items-center bg-[#292828] h-screen w-screen justify-center">
-			<div className="pt-24 justify-center text-2xl animate-pulse items-center rounded-lg text-green-700">
+			<div className="pt-24 justify-center text-4xl pb-6 animate-pulse items-center rounded-lg text-green-700">
 				<strong>key.board is active!</strong>
 			</div>
 			<button

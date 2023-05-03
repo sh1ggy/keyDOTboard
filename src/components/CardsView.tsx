@@ -23,7 +23,7 @@ export function CardsView(props: CardsViewProps) {
 
 	return (
 		<div className="flex flex-col max-w-sm p-6 bg-[#5D616C] rounded-lg mt-24 mx-6">
-			<div className='flex flex-col items-start'>
+			<div className='flex flex-col items-start overflow-clip'>
 				<p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">ID: {card.rfid}</p>
 				<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{card.name}</h5>
 			</div>
