@@ -7,8 +7,6 @@ import React from "react";
 import CommandTerminal from "@/components/CommandTerminal";
 import type { Command } from '@tauri-apps/api/shell';
 
-
-
 export default function PortSelection() {
 	const [ports, setPorts] = useState<string[]>([]);
 	const [selectedPort, setSelectedPort] = useContext(PortContext);
@@ -25,6 +23,8 @@ export default function PortSelection() {
 			setSelectedPort(recvPorts[0]);
 		}
 		init();
+		// 
+		// router.push("/");
 	}, [])
 
 	const savePort = async () => {
@@ -34,10 +34,10 @@ export default function PortSelection() {
 
 		const espBin = await getEspBinDir();
 		const readFileBin = await getReadBinDir();
-		
+
 		const Command = (await import('@tauri-apps/api/shell')).Command;
 		// Name of the sidecar has to match exactly to the scope name
-		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`,`--output`, readFileBin]);
+		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
 
 		// //   String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
 		// //   [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
@@ -103,7 +103,7 @@ export default function PortSelection() {
 				}
 			</ul>
 			<code className='bg-[#8F95A0] w-screen p-3'><strong>PORT: </strong>{selectedPort}</code>
-			<CommandTerminal enabled={isRunningCommand} className="p-6 flex w-auto" commandObj={getDataCommand} />
+			<CommandTerminal enabled={isRunningCommand} className="p-6 flex w-auto bg-transparent" commandObj={getDataCommand} />
 			<button
 				onClick={savePort}
 				className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-700 py-3">
