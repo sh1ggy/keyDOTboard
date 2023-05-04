@@ -2,11 +2,11 @@ import React, { ReactNode, useEffect, useState, FunctionComponent } from 'react'
 import GlobalToastProvider from '@/components/GlobalToastProvider';
 import GlobalErrorProvider from '@/components/GlobalErrorProvider';
 import { useRouter } from 'next/navigation';
-import '@/styles/globals.css'
-import '@/styles/xterm.css'
 import type { AppProps } from 'next/app'
 import { Card } from '.';
 import Head from 'next/head';
+import '@/styles/globals.css'
+import '@/styles/xterm.css'
 
 interface IProps {
   children: ReactNode;
@@ -32,9 +32,12 @@ export const PortContext = React.createContext<[string | null, React.Dispatch<Re
 export const LoadedCardsContext = React.createContext<[Card[], React.Dispatch<React.SetStateAction<Card[]>>]>(null);
 // @ts-ignore
 export const NewCardsContext = React.createContext<[Card[], React.Dispatch<React.SetStateAction<Card[]>>]>(null);
+// @ts-ignore
+export const LoadedBinaryContext = React.createContext<[string | null, React.Dispatch<React.SetStateAction<string | null>>]>(null);
 
 export default function App({ Component, pageProps }: AppProps) {
   const portState = useState<string | null>(null);
+  const binaryState = useState<string | null>(null);
   const cardsState = useState<Card[]>([]);
   const newCardsState = useState<Card[]>([]);
   const router = useRouter();
@@ -50,10 +53,12 @@ export default function App({ Component, pageProps }: AppProps) {
         <PortContext.Provider value={portState}>
           <LoadedCardsContext.Provider value={cardsState}>
             <NewCardsContext.Provider value={newCardsState}>
-              <Head>
-                <script src="http://localhost:8097"></script>
-              </Head>
-              <Component {...pageProps} />
+              <LoadedBinaryContext.Provider value={binaryState}>
+                <Head>
+                  <script src="http://localhost:8097"></script>
+                </Head>
+                <Component {...pageProps} />
+              </LoadedBinaryContext.Provider>
             </NewCardsContext.Provider>
           </LoadedCardsContext.Provider>
         </PortContext.Provider>
