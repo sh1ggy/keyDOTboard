@@ -3,8 +3,6 @@ import type { Terminal, ITerminalAddon } from 'xterm'
 
 import type { Command } from '@tauri-apps/api/shell';
 
-import 'xterm/css/xterm.css'
-
 export interface IProps {
     commandObj: React.MutableRefObject<Command | null>;
     className?: string;
@@ -130,7 +128,8 @@ class CommandTerminal extends React.Component<IProps, IState> {
     render() {
         return (
             // TODO: Only apply classname and relevant props or extract out commandObj
-            <div ref={this.termRef} className={this.props.className} ></div>
+            <div style={{borderRadius: '0.5rem', backgroundColor: 'black', margin: '1.25rem'}} ref={this.termRef} className={this.props.className}>
+            </div>
         )
     }
 }

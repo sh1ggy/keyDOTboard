@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect, useState, FunctionComponent } from 'react'
 import GlobalToastProvider from '@/components/GlobalToastProvider';
 import { useRouter } from 'next/navigation';
 import '@/styles/globals.css'
+import '@/styles/xterm.css'
 import type { AppProps } from 'next/app'
 import { Card } from '.';
 import Head from 'next/head';
