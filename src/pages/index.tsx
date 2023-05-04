@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { getPorts, reflashPartition, test } from '@/lib/services'
 import { CardsView, CardsViewProps } from '@/components/CardsView'
 import { Navbar } from '@/components/Navbar'
-import { CardsContext, NewCardsContext, PortContext } from './_app'
+import { LoadedCardsContext, NewCardsContext, PortContext } from './_app'
 import { useToast } from '@/hooks/useToast';
 import { EditView } from '@/components/EditView';
 import { arraysEqual } from '@/lib/utils';
@@ -41,7 +41,7 @@ function App() {
   const setToast = useToast();
   const router = useRouter();
   const [selectedPort, setSelectedPort] = useContext(PortContext);
-  const [cards, setCards] = useContext(CardsContext);
+  const [cards, setCards] = useContext(LoadedCardsContext);
   const [newCards, setNewCards] = useContext(NewCardsContext);
 
   useEffect(() => {

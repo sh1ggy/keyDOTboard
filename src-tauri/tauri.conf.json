@@ -47,6 +47,21 @@
             "name": "bin/dist/parttool",
             "sidecar": true,
             "args": true
+          },
+          {
+            "name": "bin/dist/esptool",
+            "sidecar": true,
+            "args": true
+          },
+          {
+            "name": "bin/dist/analyze_nvs",
+            "sidecar": true,
+            "args": true
+          },
+          {
+            "name": "bin/dist/nvs_gen",
+            "sidecar": true,
+            "args": true
           }
         ]
       }
@@ -60,7 +75,9 @@
       },
       "externalBin": [
         "bin/dist/parttool",
-        "bin/dist/esptool"
+        "bin/dist/esptool",
+        "bin/dist/analyze_nvs",
+        "bin/dist/nvs_gen"
       ],
       "icon": [
         "icons/32x32.png",

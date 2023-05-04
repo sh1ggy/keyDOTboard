@@ -29,7 +29,7 @@ export const SafeHydrate: FunctionComponent<IProps> = ({ children }) => {
 // @ts-ignore
 export const PortContext = React.createContext<[portDef, React.Dispatch<React.SetStateAction<portDef>>]>(null);
 // @ts-ignore
-export const CardsContext = React.createContext<[cardsDef, React.Dispatch<React.SetStateAction<cardsDef>>]>(null);
+export const LoadedCardsContext = React.createContext<[cardsDef, React.Dispatch<React.SetStateAction<cardsDef>>]>(null);
 // @ts-ignore
 export const NewCardsContext = React.createContext<[cardsDef, React.Dispatch<React.SetStateAction<cardsDef>>]>(null);
 
@@ -47,14 +47,14 @@ export default function App({ Component, pageProps }: AppProps) {
     // <SafeHydrate>
     <GlobalToastProvider>
       <PortContext.Provider value={portState}>
-        <CardsContext.Provider value={cardsState}>
+        <LoadedCardsContext.Provider value={cardsState}>
           <NewCardsContext.Provider value={newCardsState}>
             <Head>
               <script src="http://localhost:8097"></script>
             </Head>
             <Component {...pageProps} />
           </NewCardsContext.Provider>
-        </CardsContext.Provider>
+        </LoadedCardsContext.Provider>
       </PortContext.Provider>
     </GlobalToastProvider>
     // </SafeHydrate>

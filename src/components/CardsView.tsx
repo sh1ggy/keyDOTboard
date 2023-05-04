@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/useToast";
 import { Card } from "@/pages";
-import { CardsContext } from "@/pages/_app";
+import { LoadedCardsContext } from "@/pages/_app";
 import { reflashPartition } from "@/lib/services";
 import { useRouter } from "next/router";
 import { useContext } from "react";
@@ -24,7 +24,7 @@ export function CardsView(props: CardsViewProps) {
     if (await reflashPartition())
       setToast("Card deleted");
   }
-	const [cards, setCards] = useContext(CardsContext);
+	const [cards, setCards] = useContext(LoadedCardsContext);
 	const setToast = useToast();
 	const router = useRouter();
 

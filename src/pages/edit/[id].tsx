@@ -1,6 +1,6 @@
 import { Card } from "@/pages";
 import { useContext, useEffect, useState } from "react";
-import { CardsContext } from "@/pages/_app";
+import { LoadedCardsContext } from "@/pages/_app";
 import { useToast } from "@/hooks/useToast";
 import { usePrevious } from "@/hooks/usePrevious";
 import { useRouter } from "next/router";
@@ -37,7 +37,7 @@ export default function EditView() {
 	}
 
 	const setToast = useToast();
-	const [cards, setCards] = useContext(CardsContext);
+	const [cards, setCards] = useContext(LoadedCardsContext);
   const router = useRouter();
   
   const index = parseInt(router.query.id as string);

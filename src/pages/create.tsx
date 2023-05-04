@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/useToast";
 import { Card } from ".";
 import { reflashPartition } from "@/lib/services";
-import { CardsContext, NewCardsContext } from "./_app";
+import { LoadedCardsContext, NewCardsContext } from "./_app";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'

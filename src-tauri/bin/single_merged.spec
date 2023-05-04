@@ -69,7 +69,8 @@ analyze_nvs_a = Analysis(
 )
 
 # The binary output name arguemnt (3) has to be the same as the one provided in exe 
-MERGE( (parttool_a, 'parttool', 'parttool' + host_suffix), (nvs_gen_a, 'nvs_partition_gen', 'nvs_gen' + host_suffix), (analyze_nvs_a, 'analyze_nvs', 'analyze_nvs' + host_suffix))
+#MERGE( (parttool_a, 'parttool', 'parttool' + host_suffix), (nvs_gen_a, 'nvs_partition_gen', 'nvs_gen' + host_suffix), (analyze_nvs_a, 'analyze_nvs', 'analyze_nvs' + host_suffix))
+MERGE( (parttool_a, 'parttool', 'parttool' ), (nvs_gen_a, 'nvs_partition_gen', 'nvs_gen' ), (analyze_nvs_a, 'analyze_nvs', 'analyze_nvs' ))
 
 parttool_z = PYZ(parttool_a.pure, parttool_a.zipped_data, cipher=block_cipher)
 
@@ -123,7 +124,7 @@ nvs_gen_exe = EXE(
 )
 
 
-analyze_nvs_z = PYZ(parttool_a.pure, parttool_a.zipped_data, cipher=block_cipher)
+analyze_nvs_z = PYZ(analyze_nvs_a.pure, analyze_nvs_a.zipped_data, cipher=block_cipher)
 
 
 analyze_nvs_exe = EXE(

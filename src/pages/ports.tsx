@@ -1,11 +1,26 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { getCurrentWorkingDir, getEspBinDir, getPorts, getReadBinDir, startImports, startlistenServer, test } from "@/lib/services";
-import { PortContext } from "./_app";
+import { LoadedCardsContext, PortContext } from "./_app";
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
 import React from "react";
 import CommandTerminal from "@/components/CommandTerminal";
 import type { Command } from '@tauri-apps/api/shell';
+import { Card } from ".";
+
+type InternalValTypes =
+	"STR" |
+	"U32" |
+	"BLOB";
+
+
+type InternalVal = {
+	type: InternalValTypes,
+	value: string
+}
+
+type DbType = Record<string, Record<string, InternalVal> & { num_cards: { type: "U32", value: string }, uids: { type: "BLOB", value: string } }>;
+
 
 export default function PortSelection() {
 	const [ports, setPorts] = useState<string[]>([]);
@@ -14,6 +29,7 @@ export default function PortSelection() {
 	const router = useRouter();
 	const getDataCommand = useRef<Command | null>(null);
 	const [isRunningCommand, setRunningCommand] = useState<boolean>(false);
+	const [cards, setCards] = useContext(LoadedCardsContext);
 
 	useEffect(() => {
 		const init = async () => {
@@ -29,46 +45,82 @@ export default function PortSelection() {
 
 	const savePort = async () => {
 
+		const Command = (await import('@tauri-apps/api/shell')).Command;
 		setSelectedPort(selectedPort);
 		setToast("Selected device at port: " + selectedPort);
 
 		const espBin = await getEspBinDir();
 		const readFileBin = await getReadBinDir();
 
-		const Command = (await import('@tauri-apps/api/shell')).Command;
+
 		// Name of the sidecar has to match exactly to the scope name
 		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
 
-		// //   String.raw`C:\Users\anhad\.espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:\Users\anhad\esp\esp-idf\components\partition_table\parttool.py`,
-		// //   [` --port`, `COM4`, `--baud`, `115200`, `write_partition`, `--partition-name=nvs`, `--input`, `"data.bin"`]);
-
-		const childProcess = await getDataCommand.current.spawn();
+		// Not needed as execute also submits events for stdout and is more async await agnostic
+		// const childProcess = await getDataCommand.current.spawn();
 		setRunningCommand(true);
-		getDataCommand.current.stdout.on("data", (data: string) => {
-			// This should be in the stderror state but its not for some reason, 
-			// try and get raw stdout pipe from tauri first to detect "Connecting......." first, then try and fix from python side
+
+		let res = await getDataCommand.current.execute();
+		if (res.code != 0) {
 			const bootModeErrorString = "Wrong boot mode detected (0x13)";
-			if (data.includes(bootModeErrorString)) {
+			if (res.stdout.includes(bootModeErrorString)) {
 				// Ping the user that they need to hold down the boot button and try again
+				setToast(`You seem to have a buggy esp. \
+				Please hold down the Boot button for the duration of this terminal running Or while \`Serial port ${selectedPort}\` is showing`);
+				setRunningCommand(false);
+				return;
 			}
-		})
+		}
 
-		getDataCommand.current.on('close', () => {
-			console.log(`Saved BinaryFile in: ${readFileBin}`);
-			setToast(`Saved BinaryFile in: ${readFileBin}`);
+		// const readFileBin = String.raw`C:\Users\anhad\AppData\Local\com.kongi.dev\1683189187486_data.bin`
+
+		setToast(`Saved BinaryFile in: ${readFileBin}`);
+		setRunningCommand(false);
+		getDataCommand.current = Command.sidecar('bin/dist/analyze_nvs', [`${readFileBin}`, `-j`]);
+
+		setRunningCommand(true);
+		let analyzeRes = await getDataCommand.current.execute();
+		console.log({ res: analyzeRes });
+
+		if (analyzeRes.code != 0) {
+			// KeyError: 0
+			setToast("No previous Database found of esp, starting empty db");
+			setCards([]);
 			setRunningCommand(false);
-			router.push("/");
-		})
+			// router.push("/");
+			return;
+		}
 
-		//Run Analyze binary
+		const db = JSON.parse(analyzeRes.stdout) as DbType;
+		const nameSpace = db['kb'];
+		console.log({ db });
+		const splitUids = nameSpace.uids.value.trim().split(' ');
+		const unflattenedUids: String[][] = [];
 
-		//Read output json and parse
+		for (let i = 0; i < splitUids.length; i += 4) {
+			unflattenedUids.push(splitUids.slice(i, i + 4));
+		}
+		const gottenCards: Card[] = [];
 
-		//save cards to global state
+		for (let i = 0; i < parseInt(nameSpace.num_cards.value); i++) {
+			gottenCards.push({
+				name: nameSpace[`name${i}`].value,
+				password: nameSpace[`pass${i}`].value,
+				rfid: unflattenedUids[i].join(' '),
+			});
+		}
+
+		setCards(gottenCards);
+
+		router.push("/");
+
+		// getDataCommand.current.on('close', () => {
+		// 	console.log(`Saved BinaryFile in: ${readFileBin}`);
+		// 	setToast(`Saved BinaryFile in: ${readFileBin}`);
+		// 	setRunningCommand(false);
+		// })
 
 
-
-		// if (selectedPort == null) return;
 		// await startlistenServer(selectedPort);
 
 

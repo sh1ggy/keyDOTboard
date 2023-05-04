@@ -1,6 +1,6 @@
 import { Card } from "@/pages";
 import { useContext, useEffect, useState } from "react";
-import { CardsContext } from "@/pages/_app";
+import { LoadedCardsContext } from "@/pages/_app";
 import { useToast } from "@/hooks/useToast";
 import { usePrevious } from "@/hooks/usePrevious";
 
@@ -44,7 +44,7 @@ export function EditView(props: EditViewProps) {
 	}
 
 	const setToast = useToast();
-	const [cards, setCards] = useContext(CardsContext);
+	const [cards, setCards] = useContext(LoadedCardsContext);
 	// const prev: any  = usePrevious(cards);
 
 	const editView = props.editView;
