@@ -85,26 +85,36 @@ export default function PortSelection() {
 				Force Detect Ports
 			</button>
 			<div className="flex flex-col items-center bg-[#292828] h-full w-screen">
-				<div className="justify-center text-white w-screen text-xl p-6  bg-[#213352]">Port Selection</div>
+				<div className="justify-center text-white w-screen text-xl py-6 px-3 bg-[#213352]"><strong>Port Selection</strong></div>
 				<ul className="text-sm text-black bg-[#51555D]" aria-labelledby="dropdownDefaultButton">
 					{
 						(ports.length == 0) ?
 							<li>
-								<a className="select-none block w-screen px-4 py-2 text-white bg-[#80809D]">No ports</a>
+								<a className="select-none block w-screen px-3 py-2 text-white bg-[#80809D]">No ports</a>
 							</li>
 							:
 							ports.map((p, i) => {
 								return (
-									<li key={i}>
-										<a className="select-none block w-screen px-4 py-2 text-white hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onClick={() => {
-											setSelectedPort(p);
-										}}>{p}</a>
-									</li>
+									<>
+										{(selectedPort == p) ?
+											<li key={i} className="cursor-pointer">
+												<a className="select-none block w-screen px-3 py-2 bg-gray-500 text-white" onClick={() => {
+													setSelectedPort(p);
+												}}>{p}</a>
+											</li>
+											:
+											<li key={i} className="cursor-pointer">
+												<a className="select-none block w-screen px-3 py-2 text-white hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white active:animate-pulse" onClick={() => {
+													setSelectedPort(p);
+												}}>{p}</a>
+											</li>
+										}
+									</>
 								)
 							})
 					}
 				</ul>
-				<code className='bg-[#8F95A0] w-full p-3 px-3'><strong>Selected Port: </strong>{selectedPort}</code>
+				<code className='bg-[#8F95A0] w-full p-3 px-3 text-sm'><strong>Selected Port: </strong>{selectedPort}</code>
 				<button
 					onClick={savePort}
 					className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-700 py-3">
