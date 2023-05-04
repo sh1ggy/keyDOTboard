@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useState, FunctionComponent } from 'react';
 import GlobalToastProvider from '@/components/GlobalToastProvider';
+import GlobalErrorProvider from '@/components/GlobalErrorProvider';
 import { useRouter } from 'next/navigation';
 import '@/styles/globals.css'
 import '@/styles/xterm.css'
@@ -47,16 +48,18 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     // <SafeHydrate>
     <GlobalToastProvider>
-      <PortContext.Provider value={portState}>
-        <CardsContext.Provider value={cardsState}>
-          <NewCardsContext.Provider value={newCardsState}>
-            <Head>
-              <script src="http://localhost:8097"></script>
-            </Head>
-            <Component {...pageProps} />
-          </NewCardsContext.Provider>
-        </CardsContext.Provider>
-      </PortContext.Provider>
+      <GlobalErrorProvider>
+        <PortContext.Provider value={portState}>
+          <CardsContext.Provider value={cardsState}>
+            <NewCardsContext.Provider value={newCardsState}>
+              <Head>
+                <script src="http://localhost:8097"></script>
+              </Head>
+              <Component {...pageProps} />
+            </NewCardsContext.Provider>
+          </CardsContext.Provider>
+        </PortContext.Provider>
+      </GlobalErrorProvider>
     </GlobalToastProvider>
     // </SafeHydrate>
   )

@@ -134,23 +134,6 @@ function App() {
                 )
               })}
             </div>
-            // <>
-            //   {editView ?
-            //     <EditView
-            //       setEditView={setEditView}
-            //       index={index}
-            //       editView={editView}
-            //     />
-            //     :
-            //     <div className='flex flex-wrap items-center justify-center'>
-            //       {cards.map((c, i) => {
-            //         return (
-            //           <CardsView key={i} cards={cards} card={c} cardIndex={i} setEditView={setEditView} editView={editView} />
-            //         )
-            //       })}
-            //     </div>
-            //   }
-            // </>
           }
         </div>
       </div>
