@@ -29,7 +29,7 @@ export default function PortSelection() {
 	const router = useRouter();
 	const getDataCommand = useRef<Command | null>(null);
 	const [isRunningCommand, setRunningCommand] = useState<boolean>(false);
-	const [cards, setCards] = useContext(LoadedCardsContext);
+	const [_, setCards] = useContext(LoadedCardsContext);
 
 	useEffect(() => {
 		const init = async () => {

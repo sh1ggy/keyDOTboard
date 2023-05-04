@@ -9,7 +9,6 @@ import { CardsView, CardsViewProps } from '@/components/CardsView'
 import { Navbar } from '@/components/Navbar'
 import { LoadedCardsContext, NewCardsContext, PortContext } from './_app'
 import { useToast } from '@/hooks/useToast';
-import { EditView } from '@/components/EditView';
 import { arraysEqual } from '@/lib/utils';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

@@ -1,6 +1,6 @@
 import { Card } from "@/pages";
 import { useContext, useEffect, useState } from "react";
-import { LoadedCardsContext } from "@/pages/_app";
+import { NewCardsContext } from "@/pages/_app";
 import { useToast } from "@/hooks/useToast";
 import { usePrevious } from "@/hooks/usePrevious";
 import { useRouter } from "next/router";
@@ -37,10 +37,10 @@ export default function EditView() {
 	}
 
 	const setToast = useToast();
-	const [cards, setCards] = useContext(LoadedCardsContext);
-  const router = useRouter();
-  
-  const index = parseInt(router.query.id as string);
+	const [cards, setCards] = useContext(NewCardsContext);
+	const router = useRouter();
+
+	const index = parseInt(router.query.id as string);
 	const [name, setName] = useState(cards[index].name);
 	const [password, setPassword] = useState(cards[index].password);
 	const [showPassword, setShowPassword] = useState(false);
