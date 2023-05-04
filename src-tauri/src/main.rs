@@ -6,11 +6,14 @@
 mod serial;
 use std::{
     error::Error,
-    sync::Arc,
+    sync::{Arc, Mutex},
     time::{self, Duration},
 };
 use std::{io, num::ParseIntError, thread};
-use tauri::{Config, Runtime};
+use tauri::{
+    api::process::{Command, CommandEvent},
+    Config, State, Runtime,
+};
 
 // Need to implement serde::deserialize trait on this to use in command
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
@@ -20,7 +23,11 @@ struct Card {
     rfid: String,
 }
 
-struct State {}
+// You can have multiple states in tauri app, check https://github.com/tauri-apps/tauri/blob/dev/examples/state/main.rs
+struct ReaderThreadState {
+    // Mutex allows our struct to implement DerefMut
+    reader_thread: Mutex<Option<thread::JoinHandle<()>>>,
+}
 
 #[derive(Default)]
 struct MyState {
@@ -39,26 +46,62 @@ async fn command_name(state: tauri::State<'_, MyState>) -> Result<(), String> {
 async fn test<R: Runtime>(
     app: tauri::AppHandle<R>,
     window: tauri::Window<R>,
-) -> Result<(), String> {
-    println!("test: {:#?}", app.config());
-    Ok(())
-}
+) -> Result<String, String> {
+    // `new_sidecar()` expects just the filename, NOT the whole path like in JavaScript
+    // 'bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `COM4`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`,`--output`, binFileName
+    let mut esp_bin = std::env::current_exe().unwrap().parent().unwrap().to_owned();
+    esp_bin.push("esptool");
+    let esp_bin = esp_bin.as_os_str().to_str().unwrap();
+    let mut command_builder = Command::new_sidecar("parttool").unwrap().args([
+        "-e",
+        &esp_bin,
+        "--port",
+        "COM4",
+        "--baud",
+        "115200",
+        "read_partition",
+        "--partition-name=nvs",
+        "--output",
+        "./Hey_man.bin"
+    ]);
+    println!("Running command{:?}", command_builder);
 
-#[tauri::command]
-async fn command_nam3e<R: Runtime>(
-    app: tauri::AppHandle<R>,
-    window: tauri::Window<R>,
-) -> Result<(), String> {
-    Ok(())
+    let (mut rx, mut child) = command_builder
+        .spawn()
+        .expect("Failed to spawn sidecar");
+
+// THis is effectively the same thing as just doing it through js, theres no api yet for reading bytes from stdin
+    tauri::async_runtime::spawn(async move {
+        println!("Reading events from command");
+        // read events such as stdout
+        while let Some(event) = rx.recv().await {
+            if let CommandEvent::Stdout(line) = event {
+                // window
+                //     .emit("message", Some(format!("'{}'", line)))
+                //     .expect("failed to emit event");
+                println!("{line}");
+
+                // write to stdin
+                // child.write("message from Rust\n".as_bytes()).unwrap();
+            }
+            else if let CommandEvent::Stderr(line) = event {
+                println!("{line}");
+            }
+        }
+    });
+    // let printThing = format!("test: {:#?}", app.config());
+    // println!("{printThing}");
+    // Ok(printThing)
+    Ok((String::new()))
 }
 
 fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Box<dyn Error>> {
     // TODO: Use anyhow to propogate errors in this in a way that doesnt need to make a new function or use a closure
     let mut path =
-        tauri::api::path::app_data_dir(&config).unwrap_or(std::path::PathBuf::from("./temp"));
+        tauri::api::path::app_local_data_dir(&config).unwrap_or(std::path::PathBuf::from("./temp"));
     std::fs::create_dir_all(&path)?;
 
-    path.push("data.csv");
+    path.push("to_save.csv");
     println!("Saving csv at: {:?}", path);
     let mut wtr = csv::Writer::from_path(&path)?;
     wtr.write_record(&["key", "type", "encoding", "value"])?;
@@ -92,7 +135,8 @@ fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Bo
         //     .collect();
 
         // let maybe_hex = hex::decode(hex_string_trimmed);
-        uid_buffer.push_str(&card.rfid);
+        let new_uid_string = card.rfid.trim().replace(" ", "");
+        uid_buffer.push_str(&new_uid_string);
     }
     wtr.write_record(&["uids", "data", "hex2bin", &uid_buffer])?;
     wtr.write_record(&["num_cards", "data", "u32", &uid_count.to_string()])?;
@@ -112,7 +156,7 @@ fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Bo
 async fn save_cards_to_csv_command(
     app: AppHandle,
     cards: Vec<Card>,
-    port: String,
+    // port: String,
 ) -> Result<String, String> {
     // let confRef = &app.config();
 
@@ -131,12 +175,48 @@ async fn save_cards_to_csv_command(
 }
 
 #[tauri::command]
-async fn start_listen_server(window: tauri::Window, port: String) -> Result<(), String> {
+async fn get_current_working_dir() -> Result<String, String> {
+    match std::env::current_exe() {
+        Ok(exe_path) => match exe_path.parent() {
+            Some(parent_dir) => match parent_dir.to_str() {
+                Some(parent_dir_str) => Ok(parent_dir_str.to_owned()),
+                None => Err("Could not convert parent directory path to string".to_owned()),
+            },
+            None => Err("Could not get parent directory of current executable".to_owned()),
+        },
+        Err(e) => Err(format!("Could not get path of current executable: {}", e)),
+    }
+}
+
+#[tauri::command]
+async fn start_listen_server(
+    window: tauri::Window,
+    // Anonymous lifetime specified here because the state object needs to exist for the duration of the function and has reference to AppState
+    state: State<'_, ReaderThreadState>,
+    port: String,
+) -> Result<(), String> {
+    let mut maybe_old_thread = state.reader_thread.lock().unwrap();
+
+    let mut sum_error: String = String::new();
+    // kill the old thread
+    // Take grabs the value from Option, leaving a none in its place, we need the value in order to actually run join
+    if let Some(old_thread) = maybe_old_thread.take() {
+        println!("Killing old thread");
+        let join_res = old_thread.join();
+        if let (Err(error)) = join_res {
+            // sum_error.push_str("" );
+            println!("Could not kill old server");
+        }
+    }
+
     let app = window.app_handle().clone();
 
-    thread::spawn(move || {
+    let thread_handle = thread::spawn(move || {
         serial::read_rfid(app, port);
     });
+
+    *maybe_old_thread = Some(thread_handle);
+
     Ok(())
 }
 
@@ -156,9 +236,13 @@ fn main() {
             save_cards_to_csv_command,
             get_ports,
             start_listen_server,
-            test
+            test,
+            get_current_working_dir
         ])
         // .setup(|app| setup(app))
+        .manage(ReaderThreadState {
+            reader_thread: Mutex::new(None),
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
