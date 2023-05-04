@@ -14,17 +14,17 @@ export interface CardsViewProps {
 }
 
 export function CardsView(props: CardsViewProps) {
-	const deleteCard = async (i: number) => {
-    setCards((prev) => {
-      const tempCards = [...prev];
-      tempCards.splice(i, 1);
-      return tempCards;
-    })
-
-    if (await reflashPartition())
-      setToast("Card deleted");
-  }
 	const [cards, setCards] = useContext(NewCardsContext);
+	const deleteCard = async (i: number) => {
+		setCards((prev) => {
+			const tempCards = [...prev];
+			tempCards.splice(i, 1);
+			return tempCards;
+		})
+
+		if (await reflashPartition())
+			setToast("Card deleted");
+	}
 	const setToast = useToast();
 	const router = useRouter();
 

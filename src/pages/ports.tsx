@@ -1,12 +1,13 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { getCurrentWorkingDir, getEspBinDir, getPorts, getReadBinDir, startImports, startlistenServer, test } from "@/lib/services";
-import { LoadedCardsContext, PortContext } from "./_app";
+import { LoadedCardsContext, NewCardsContext, PortContext } from "./_app";
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
 import React from "react";
 import CommandTerminal from "@/components/CommandTerminal";
 import type { Command } from '@tauri-apps/api/shell';
 import { Card } from ".";
+import { useError } from "@/hooks/useError";
 
 type InternalValTypes =
 	"STR" |
@@ -29,50 +30,55 @@ export default function PortSelection() {
 	const router = useRouter();
 	const getDataCommand = useRef<Command | null>(null);
 	const [isRunningCommand, setRunningCommand] = useState<boolean>(false);
-	const [_, setCards] = useContext(LoadedCardsContext);
+	const [cards, setCards] = useContext(LoadedCardsContext);
+	const [newCards, setNewCards] = useContext(NewCardsContext);
+	const setError = useError();
 
 	useEffect(() => {
 		const init = async () => {
 			await startImports();
 			const recvPorts = await getPorts();
 			setPorts(recvPorts);
-			setSelectedPort(recvPorts[0]);
+			if (recvPorts.length != 0)
+				setSelectedPort(recvPorts[0]);
 		}
 		init();
 
 		// router.push("/");
 	}, [])
 
-	const savePort = async () => {
-
-		const Command = (await import('@tauri-apps/api/shell')).Command;
-		setSelectedPort(selectedPort);
-		setToast("Selected device at port: " + selectedPort);
-
-		const espBin = await getEspBinDir();
-		const readFileBin = await getReadBinDir();
-
-
-		// Name of the sidecar has to match exactly to the scope name
-		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
-
-		// Not needed as execute also submits events for stdout and is more async await agnostic
-		// const childProcess = await getDataCommand.current.spawn();
-		setRunningCommand(true);
-
-		let res = await getDataCommand.current.execute();
-		if (res.code != 0) {
-			const bootModeErrorString = "Wrong boot mode detected (0x13)";
-			if (res.stdout.includes(bootModeErrorString)) {
-				// Ping the user that they need to hold down the boot button and try again
-				setToast(`You seem to have a buggy esp. \
-				Please hold down the Boot button for the duration of this terminal running Or while \`Serial port ${selectedPort}\` is showing`);
-				setRunningCommand(false);
-				return;
-			}
+	const proceedToCardsScreen = async () => {
+		if (selectedPort == null) {
+			setError("Select a port first.");
+			return;
 		}
 
-		// const readFileBin = String.raw`C:\Users\anhad\AppData\Local\com.kongi.dev\1683189187486_data.bin`
+		const Command = (await import('@tauri-apps/api/shell')).Command;
+
+		// const espBin = await getEspBinDir();
+		// const readFileBin = await getReadBinDir();
+
+
+		// // Name of the sidecar has to match exactly to the scope name
+		// getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
+
+		// // Not needed as execute also submits events for stdout and is more async await agnostic
+		// // const childProcess = await getDataCommand.current.spawn();
+		// setRunningCommand(true);
+
+		// let res = await getDataCommand.current.execute();
+		// if (res.code != 0) {
+		// 	const bootModeErrorString = "Wrong boot mode detected (0x13)";
+		// 	if (res.stdout.includes(bootModeErrorString)) {
+		// 		// Ping the user that they need to hold down the boot button and try again
+		// 		setToast(`You seem to have a buggy esp. \
+		// 		Please hold down the Boot button for the duration of this terminal running Or while \`Serial port ${selectedPort}\` is showing`);
+		// 		setRunningCommand(false);
+		// 		return;
+		// 	}
+		// }
+
+		const readFileBin = String.raw`C:\Users\anhad\AppData\Local\com.kongi.dev\1683189187486_data.bin`
 
 		setToast(`Saved BinaryFile in: ${readFileBin}`);
 		setRunningCommand(false);
@@ -111,6 +117,7 @@ export default function PortSelection() {
 		}
 
 		setCards(gottenCards);
+		setNewCards(gottenCards);
 
 		router.push("/");
 
@@ -169,7 +176,7 @@ export default function PortSelection() {
 				</ul>
 				<code className='bg-[#8F95A0] w-full p-3 px-3 text-sm'><strong>Selected Port: </strong>{selectedPort}</code>
 				<button
-					onClick={savePort}
+					onClick={proceedToCardsScreen}
 					className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-700 py-3">
 					Connect To Device
 				</button>

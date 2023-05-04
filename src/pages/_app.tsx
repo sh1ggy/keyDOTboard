@@ -7,8 +7,6 @@ import '@/styles/xterm.css'
 import type { AppProps } from 'next/app'
 import { Card } from '.';
 import Head from 'next/head';
-type portDef = string | null;
-type cardsDef = Card[];
 
 interface IProps {
   children: ReactNode;
@@ -29,16 +27,16 @@ export const SafeHydrate: FunctionComponent<IProps> = ({ children }) => {
 // }];
 
 // @ts-ignore
-export const PortContext = React.createContext<[portDef, React.Dispatch<React.SetStateAction<portDef>>]>(null);
+export const PortContext = React.createContext<[string | null, React.Dispatch<React.SetStateAction<string | null>>]>(null);
 // @ts-ignore
-export const LoadedCardsContext = React.createContext<[cardsDef, React.Dispatch<React.SetStateAction<cardsDef>>]>(null);
+export const LoadedCardsContext = React.createContext<[Card[], React.Dispatch<React.SetStateAction<Card[]>>]>(null);
 // @ts-ignore
-export const NewCardsContext = React.createContext<[cardsDef, React.Dispatch<React.SetStateAction<cardsDef>>]>(null);
+export const NewCardsContext = React.createContext<[Card[], React.Dispatch<React.SetStateAction<Card[]>>]>(null);
 
 export default function App({ Component, pageProps }: AppProps) {
-  const portState = useState<portDef>(null);
-  const cardsState = useState<cardsDef>([]);
-  const newCardsState = useState<cardsDef>([]);
+  const portState = useState<string | null>(null);
+  const cardsState = useState<Card[]>([]);
+  const newCardsState = useState<Card[]>([]);
   const router = useRouter();
 
   useEffect(() => {
