@@ -98,7 +98,7 @@ function App() {
               onClick={() => {
                 router.push('/login');
               }}>
-              Login Mode
+              Load Login Binary
             </button>
           </div>
           <div className='flex flex-col'>
@@ -110,7 +110,7 @@ function App() {
             </button>
             <div className='flex flex-row'>
               <button
-                onClick={test}
+                onClick={() => {router.push("/sync")}}
                 className={`${sync ? 'animate-bounce' : ''} text-gray text-center h-full p-3 m-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 rounded-lg text-[white]`}>
                 Sync
               </button>
