@@ -150,7 +150,7 @@ export default function PortSelection() {
 					{
 						(ports.length == 0) ?
 							<li>
-								<a className="select-none block w-screen px-3 py-2 text-white bg-[#80809D]">No ports</a>
+								<a className="select-none block w-screen px-3 py-2 text-white bg-gray-500">No ports</a>
 							</li>
 							:
 							ports.map((p, i) => {
@@ -174,7 +174,7 @@ export default function PortSelection() {
 							})
 					}
 				</ul>
-				<code className='bg-[#8F95A0] w-full p-3 px-3 text-sm'><strong>Selected Port: </strong>{selectedPort}</code>
+				<code className='bg-[#8F95A0] w-full p-3 px-3 text-sm'><strong>Selected Port: </strong>{!selectedPort ? "N/A" : selectedPort}</code>
 				<button
 					onClick={proceedToCardsScreen}
 					className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-700 py-3">
