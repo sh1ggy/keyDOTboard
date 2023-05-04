@@ -55,30 +55,30 @@ export default function PortSelection() {
 
 		const Command = (await import('@tauri-apps/api/shell')).Command;
 
-		// const espBin = await getEspBinDir();
-		// const readFileBin = await getReadBinDir();
+		const espBin = await getEspBinDir();
+		let readFileBin = await getReadBinDir();
 
 
-		// // Name of the sidecar has to match exactly to the scope name
-		// getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
+		// Name of the sidecar has to match exactly to the scope name
+		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
 
-		// // Not needed as execute also submits events for stdout and is more async await agnostic
-		// // const childProcess = await getDataCommand.current.spawn();
-		// setRunningCommand(true);
+		// Not needed as execute also submits events for stdout and is more async await agnostic
+		// const childProcess = await getDataCommand.current.spawn();
+		setRunningCommand(true);
 
-		// let res = await getDataCommand.current.execute();
-		// if (res.code != 0) {
-		// 	const bootModeErrorString = "Wrong boot mode detected (0x13)";
-		// 	if (res.stdout.includes(bootModeErrorString)) {
-		// 		// Ping the user that they need to hold down the boot button and try again
-		// 		setToast(`You seem to have a buggy esp. \
-		// 		Please hold down the Boot button for the duration of this terminal running Or while \`Serial port ${selectedPort}\` is showing`);
-		// 		setRunningCommand(false);
-		// 		return;
-		// 	}
-		// }
+		let res = await getDataCommand.current.execute();
+		if (res.code != 0) {
+			const bootModeErrorString = "Wrong boot mode detected (0x13)";
+			if (res.stdout.includes(bootModeErrorString)) {
+				// Ping the user that they need to hold down the boot button and try again
+				setToast(`You seem to have a buggy esp. \
+				Please hold down the Boot button for the duration of this terminal running Or while \`Serial port ${selectedPort}\` is showing`);
+				setRunningCommand(false);
+				return;
+			}
+		}
 
-		const readFileBin = String.raw`C:\Users\anhad\AppData\Local\com.kongi.dev\1683189187486_data.bin`
+		// readFileBin = String.raw`C:\Users\anhad\AppData\Local\com.kongi.dev\1683189187486_data.bin`
 
 		setToast(`Saved BinaryFile in: ${readFileBin}`);
 		setRunningCommand(false);

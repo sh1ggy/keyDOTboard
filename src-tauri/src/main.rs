@@ -98,10 +98,10 @@ async fn test<R: Runtime>(
 fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Box<dyn Error>> {
     // TODO: Use anyhow to propogate errors in this in a way that doesnt need to make a new function or use a closure
     let mut path =
-        tauri::api::path::app_data_dir(&config).unwrap_or(std::path::PathBuf::from("./temp"));
+        tauri::api::path::app_local_data_dir(&config).unwrap_or(std::path::PathBuf::from("./temp"));
     std::fs::create_dir_all(&path)?;
 
-    path.push("data.csv");
+    path.push("to_save.csv");
     println!("Saving csv at: {:?}", path);
     let mut wtr = csv::Writer::from_path(&path)?;
     wtr.write_record(&["key", "type", "encoding", "value"])?;
@@ -135,7 +135,8 @@ fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Bo
         //     .collect();
 
         // let maybe_hex = hex::decode(hex_string_trimmed);
-        uid_buffer.push_str(&card.rfid);
+        let new_uid_string = card.rfid.trim().replace(" ", "");
+        uid_buffer.push_str(&new_uid_string);
     }
     wtr.write_record(&["uids", "data", "hex2bin", &uid_buffer])?;
     wtr.write_record(&["num_cards", "data", "u32", &uid_count.to_string()])?;
@@ -155,7 +156,7 @@ fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Bo
 async fn save_cards_to_csv_command(
     app: AppHandle,
     cards: Vec<Card>,
-    port: String,
+    // port: String,
 ) -> Result<String, String> {
     // let confRef = &app.config();
 

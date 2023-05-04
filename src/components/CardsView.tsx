@@ -13,7 +13,7 @@ export interface CardsViewProps {
 	cardIndex: number,
 }
 
-export function CardsView(props: CardsViewProps) {
+export function CardsView({ cardIndex, card }: CardsViewProps) {
 	const [cards, setCards] = useContext(NewCardsContext);
 	const deleteCard = async (i: number) => {
 		setCards((prev) => {
@@ -27,9 +27,6 @@ export function CardsView(props: CardsViewProps) {
 	}
 	const setToast = useToast();
 	const router = useRouter();
-
-	const cardIndex = props.cardIndex;
-	const card = props.card;
 
 	return (
 		<div className="flex flex-col max-w-sm p-6 bg-[#5D616C] rounded-lg mt-24 mx-6">

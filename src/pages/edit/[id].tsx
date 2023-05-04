@@ -34,6 +34,8 @@ export default function EditView() {
 			return tempCards;
 		});
 		if (exitEarly) return;
+
+		router.push('/');
 	}
 
 	const setToast = useToast();
@@ -52,6 +54,11 @@ export default function EditView() {
 
 	return (
 		<div className='flex flex-col mt-24 mx-6'>
+			<button
+				onClick={() => router.push("/")}
+				className="text-gray text-left p-3 bg-[#213352] w-full text-[white]">Back
+			</button>
+
 			<div className="justify-center text-white text-xl p-6  bg-[#213352] rounded-t-lg">Editing Card</div>
 			<div className="justify-center text-white p-6 bg-[#5D616C] rounded-b-lg ">
 				<p className="mb-3 text-sm font-bold tracking-tight text-gray-900 dark:text-white">ID: {cards[index].rfid}</p>
