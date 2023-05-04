@@ -75,7 +75,7 @@ function App() {
 
   const clearData = async () => {
     // const clearData = await invoke('start_listen_server', { "port": selectedPort });
-    await setCards([]);
+    // await setCards([]);
     setToast("Cards cleared!");
   }
 
