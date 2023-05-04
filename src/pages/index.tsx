@@ -94,11 +94,11 @@ function App() {
               className='cursor-pointer transition duration-300 hover:scale-105 bg-[#8F95A0] p-3 rounded-lg'>
               <strong>Port Selected: </strong>{selectedPort}
             </code>
-            <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-green-700 rounded-lg text-white"
+            <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-[#18a04aee] rounded-lg text-white"
               onClick={() => {
                 router.push('/login');
               }}>
-              Login Mode
+              Load Login Binary
             </button>
           </div>
           <div className='flex flex-col'>
@@ -110,7 +110,7 @@ function App() {
             </button>
             <div className='flex flex-row'>
               <button
-                onClick={test}
+                onClick={() => {router.push("/sync")}}
                 className={`${sync ? 'animate-bounce' : ''} text-gray text-center h-full p-3 m-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 rounded-lg text-[white]`}>
                 Sync
               </button>
@@ -134,23 +134,6 @@ function App() {
                 )
               })}
             </div>
-            // <>
-            //   {editView ?
-            //     <EditView
-            //       setEditView={setEditView}
-            //       index={index}
-            //       editView={editView}
-            //     />
-            //     :
-            //     <div className='flex flex-wrap items-center justify-center'>
-            //       {cards.map((c, i) => {
-            //         return (
-            //           <CardsView key={i} cards={cards} card={c} cardIndex={i} setEditView={setEditView} editView={editView} />
-            //         )
-            //       })}
-            //     </div>
-            //   }
-            // </>
           }
         </div>
       </div>

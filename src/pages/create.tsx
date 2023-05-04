@@ -1,10 +1,12 @@
 import { Navbar } from "@/components/Navbar";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/useToast";
 import { Card } from ".";
 import { reflashPartition } from "@/lib/services";
-import { LoadedCardsContext, NewCardsContext } from "./_app";
+import { NewCardsContext } from "./_app";
+import CommandTerminal from "@/components/CommandTerminal";
+import { Command } from "@tauri-apps/api/shell";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -54,8 +56,11 @@ export default function CreateCard() {
 	const [name, setName] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
-	// const [cards, setCards] = useContext(CardsContext);
 	const [newCards, setNewCards] = useContext(NewCardsContext);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const getDataCommand = useRef<Command | null>(null);
+	const [isRunningCommand, setRunningCommand] = useState<boolean>(false);
 
 	// TODO: rfid detection function move here
 	const rfid = "";
@@ -64,21 +69,35 @@ export default function CreateCard() {
 		<>
 			<button
 				onClick={() => router.push("/")}
+				disabled={isLoading}
 				className="text-gray text-left p-3 bg-[#213352] w-full text-[white]">Back
 			</button>
 
 			<div className='flex flex-col h-screen w-screen p-6 items-center justify-center bg-[#5D616C]'>
-				<code className='bg-[#8F95A0] rounded-lg p-3 mb-3'><strong>UID: {!rfid ? "N/A" : rfid}</strong></code>
+				<code
+					className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mb-3'>
+					<strong>UID: {isLoading? 'N/A' : rfid}</strong>
+
+					{!isLoading &&
+						<input
+							type="text"
+							placeholder="enter UID..."
+							className="input bg-inherit focus:outline-none text-white placeholder-white px-3 rounded-lg"
+							onChange={e => { setName(e.target.value) }}
+						/>
+					}
+				</code>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
 						createCard(name, password)
 					}}
 					className="flex flex-col items-center"
-					>
+				>
 					<div className='flex flex-row items-center'>
 						<input
 							type="text"
+							disabled={isLoading}
 							placeholder="enter name..."
 							className="input bg-white text-dim-gray py-3 pl-3 pr-[3.75rem] m-3 rounded-lg"
 							onChange={e => { setName(e.target.value) }}
@@ -87,12 +106,14 @@ export default function CreateCard() {
 					<div className='flex flex-row items-center'>
 						<input
 							type={`${showPassword ? 'text' : 'password'}`}
+							disabled={isLoading}
 							placeholder="enter password..."
 							className="input bg-white text-dim-gray p-3 mb-3 rounded-l-lg"
 							onChange={e => { setPassword(e.target.value) }}
 						/>
 						<button
 							onClick={() => { setShowPassword(!showPassword); }}
+							disabled={isLoading}
 							className="inline-flex text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white bg-white rounded-r-lg">
 							{showPassword ?
 								<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
@@ -102,14 +123,28 @@ export default function CreateCard() {
 						</button>
 					</div>
 				</form>
-				<label htmlFor="create-card-modal" className="btn btn-ghost">
-					<button
-						onClick={() => {
-							createCard(name, password);
-						}}
-						className="text-gray text-center p-3 m-3 bg-[#292828] rounded-lg text-[white]">Create Card
-					</button>
-				</label>
+				<div className="flex flex-row">
+					<label htmlFor="create-card-modal" className="btn btn-ghost">
+						<button
+							onClick={() => {
+								createCard(name, password);
+							}}
+							className="text-gray text-center p-3 m-3 bg-green-700 hover:bg-green-800 rounded-lg text-[white]">Create Card
+						</button>
+					</label>
+					<label htmlFor="create-card-modal" className="btn btn-ghost">
+						<button
+							onClick={() => {
+								// LOAD CARD READER BINARY HERE
+								setIsLoading(!isLoading); // disabling all input
+							}}
+							className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#292828] rounded-lg text-[white]">Load Card Reader Binary
+						</button>
+					</label>
+				</div>
+				{isLoading &&
+					<CommandTerminal className="p-6 flex w-auto text-left" commandObj={getDataCommand} enabled={isRunningCommand} />
+				}
 			</div>
 		</>
 	)
