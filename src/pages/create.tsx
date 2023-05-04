@@ -83,15 +83,20 @@ export default function CreateCard() {
 			<div className='flex flex-col h-screen w-screen p-6 items-center justify-center bg-[#5D616C]'>
 				<code
 					className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mb-3'>
-					<strong>UID: {isLoading ? 'N/A' : rfid}</strong>
+					
+					{/* <strong>UID: {rfid}</strong> */}
 
 					{!isLoading &&
-						<input
-							type="text"
-							placeholder="enter UID..."
-							className="input bg-inherit focus:outline-none text-white placeholder-white px-3 rounded-lg"
-							onChange={e => { setName(e.target.value) }}
-						/>
+						<>
+							<strong>UID: </strong>
+							<input
+								type="text"
+								placeholder="enter UID..."
+								className="input bg-inherit focus:outline-none text-white placeholder-white px-3 rounded-lg"
+								onChange={e => { setRfid(e.target.value) }}
+								value={rfid}
+							/>
+						</>
 					}
 				</code>
 				<form
@@ -169,20 +174,20 @@ export default function CreateCard() {
 
 
 								])
-						// 		C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.partitions.bin
+								// 		C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.partitions.bin
 
-						// --chip esp32--port COM4--baud 921600 --before default_reset--after hard_reset write_flash - z--flash_mode dio--flash_freq 80m--flash_size detect 0xe000 C: \Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.partitions.bin
+								// --chip esp32--port COM4--baud 921600 --before default_reset--after hard_reset write_flash - z--flash_mode dio--flash_freq 80m--flash_size detect 0xe000 C: \Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.partitions.bin
 
 
 							}}
 							className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#292828] rounded-lg text-[white]">Load Card Reader Binary
-					</button>
-				</label>
-			</div>
-			{isLoading &&
-				<CommandTerminal className="p-6 flex w-auto text-left" commandObj={loadingBinaryCommand} enabled={isLoading} />
-			}
-		</div >
+						</button>
+					</label>
+				</div>
+				{isLoading &&
+					<CommandTerminal className="p-6 flex w-auto text-left" commandObj={loadingBinaryCommand} enabled={isLoading} />
+				}
+			</div >
 		</>
 	)
 }

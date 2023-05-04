@@ -93,12 +93,19 @@ export default function PortSelection() {
 			setToast("No previous Database found of esp, starting empty db");
 			setCards([]);
 			setRunningCommand(false);
-			// router.push("/");
+			router.push("/");
 			return;
 		}
 
 		const db = JSON.parse(analyzeRes.stdout) as DbType;
 		const nameSpace = db['kb'];
+		if (!nameSpace) {
+			setToast("No previous Database found of esp, starting empty db. [Namespace kb not found] ")
+			setCards([]);
+			setRunningCommand(false);
+			router.push("/");
+			return;
+		}
 		console.log({ db });
 		const splitUids = nameSpace.uids.value.trim().split(' ');
 		const unflattenedUids: String[][] = [];

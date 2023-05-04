@@ -14,7 +14,7 @@ export default function SyncView() {
   const [selectedPort, setSelectedPort] = useContext(PortContext);
 
   const runCommands = async () => {
-    const invoke = (await import('@tauri-apps/api')).tauri.invoke;
+    const invoke = (await import('@tauri-apps/api')).invoke;
     const Command = (await import('@tauri-apps/api/shell')).Command;
     const path = (await import('@tauri-apps/api')).path;
 
