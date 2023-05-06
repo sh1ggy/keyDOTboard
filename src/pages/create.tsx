@@ -122,10 +122,14 @@ export default function CreateCard() {
 	const onLoadReaderBin = async () => {
 		// LOAD CARD READER BINARY HERE
 		setIsLoading(true); // disabling all input
+
 		const Command = (await import('@tauri-apps/api/shell')).Command;
 		const invoke = (await import('@tauri-apps/api')).invoke;
 		const listen = (await import('@tauri-apps/api')).event.listen;
 		const path = (await import('@tauri-apps/api')).path;
+		const stopServerRes = await invoke('stop_listen_server');
+		console.log({ stopServerRes });
+
 
 		const bootLoaderPath = await path.resolveResource("bin/arduino-bins/boot_app0.bin");
 		const bootLoaderQioPath = await path.resolveResource("bin/arduino-bins/bootloader_qio_80m.bin");
@@ -168,6 +172,12 @@ export default function CreateCard() {
 		]);
 		setRunningCommand(true);
 		const res = await loadingBinaryCommand.current.execute();
+		if (res.stdout.includes("the port doesn't exist")) {
+			setError(`The port ${selectedPort} isn't available or is already in use by another process`);
+			setRunningCommand(false);
+			setIsLoading(false);
+			return;
+		}
 		console.log({ res });
 		setCurrentBin(LoadedBinaryState.CardReader);
 		setToast(`Loaded Card Reader binary, starting reader server`);
