@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { getCurrentWorkingDir, getEspBinDir, getPorts, getReadBinDir, startImports, startlistenServer, test } from "@/lib/services";
-import { LoadedCardsContext, NewCardsContext, PortContext } from "./_app";
+import { LoadedBinaryContext, LoadedBinaryState, LoadedCardsContext, NewCardsContext, PortContext } from "./_app";
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
 import React from "react";
@@ -32,11 +32,16 @@ export default function PortSelection() {
 	const [isRunningCommand, setRunningCommand] = useState<boolean>(false);
 	const [cards, setCards] = useContext(LoadedCardsContext);
 	const [newCards, setNewCards] = useContext(NewCardsContext);
+	const [currBin, setCurrentBin] = useContext(LoadedBinaryContext);
 	const setError = useError();
 
 	useEffect(() => {
 		const init = async () => {
 			await startImports();
+			// Reset global state here
+			setCurrentBin(LoadedBinaryState.Unknown);
+
+
 			const recvPorts = await getPorts();
 			setPorts(recvPorts);
 			if (recvPorts.length != 0)
