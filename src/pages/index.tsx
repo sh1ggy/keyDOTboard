@@ -35,7 +35,6 @@ function App() {
     message: "",
   });
 
-  const [rfid, setRfid] = useState<string | null>(null);
   
   const setToast = useToast();
   const router = useRouter();
@@ -45,10 +44,7 @@ function App() {
 
   useEffect(() => {
     // Listen to tauri events
-    // const unlistenRFID = listen<string>("rfid", (e) => {
-    //   console.log(e.payload);
-    //   setRfid(e.payload);
-    // })
+ 
     // const unlistenError = listen<error>("error", (e) => {
     //   console.log(e.payload);
     //   setError(e.payload)
@@ -66,11 +62,6 @@ function App() {
   const sync = useMemo(() => {
     return !arraysEqual(newCards, cards);
   }, [newCards, cards]);
-
-  useEffect(() => {
-    console.log(`Received new rfid ${rfid}`);
-  }, [rfid]);
-
 
 
   const clearData = async () => {

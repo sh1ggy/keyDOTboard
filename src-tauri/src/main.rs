@@ -12,7 +12,7 @@ use std::{
 use std::{io, num::ParseIntError, thread};
 use tauri::{
     api::process::{Command, CommandEvent},
-    Config, State, Runtime,
+    Config, Runtime, State,
 };
 
 // Need to implement serde::deserialize trait on this to use in command
@@ -26,7 +26,7 @@ struct Card {
 // You can have multiple states in tauri app, check https://github.com/tauri-apps/tauri/blob/dev/examples/state/main.rs
 struct ReaderThreadState {
     // Mutex allows our struct to implement DerefMut
-    reader_thread: Mutex<Option<thread::JoinHandle<()>>>,
+    reader_thread: Mutex<Option<thread::JoinHandle<Result<(), String>>>>,
 }
 
 #[derive(Default)]
@@ -49,7 +49,11 @@ async fn test<R: Runtime>(
 ) -> Result<String, String> {
     // `new_sidecar()` expects just the filename, NOT the whole path like in JavaScript
     // 'bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `COM4`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`,`--output`, binFileName
-    let mut esp_bin = std::env::current_exe().unwrap().parent().unwrap().to_owned();
+    let mut esp_bin = std::env::current_exe()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_owned();
     esp_bin.push("esptool");
     let esp_bin = esp_bin.as_os_str().to_str().unwrap();
     let mut command_builder = Command::new_sidecar("parttool").unwrap().args([
@@ -62,15 +66,13 @@ async fn test<R: Runtime>(
         "read_partition",
         "--partition-name=nvs",
         "--output",
-        "./Hey_man.bin"
+        "./Hey_man.bin",
     ]);
     println!("Running command{:?}", command_builder);
 
-    let (mut rx, mut child) = command_builder
-        .spawn()
-        .expect("Failed to spawn sidecar");
+    let (mut rx, mut child) = command_builder.spawn().expect("Failed to spawn sidecar");
 
-// THis is effectively the same thing as just doing it through js, theres no api yet for reading bytes from stdin
+    // THis is effectively the same thing as just doing it through js, theres no api yet for reading bytes from stdin
     tauri::async_runtime::spawn(async move {
         println!("Reading events from command");
         // read events such as stdout
@@ -83,8 +85,7 @@ async fn test<R: Runtime>(
 
                 // write to stdin
                 // child.write("message from Rust\n".as_bytes()).unwrap();
-            }
-            else if let CommandEvent::Stderr(line) = event {
+            } else if let CommandEvent::Stderr(line) = event {
                 println!("{line}");
             }
         }
@@ -211,13 +212,28 @@ async fn start_listen_server(
 
     let app = window.app_handle().clone();
 
-    let thread_handle = thread::spawn(move || {
-        serial::read_rfid(app, port);
-    });
+    let thread_handle = thread::spawn(move || serial::read_rfid(app, port));
 
     *maybe_old_thread = Some(thread_handle);
 
     Ok(())
+}
+
+#[tauri::command]
+fn stop_listen_server(state: State<'_, ReaderThreadState>) -> Result<bool, String> {
+    let mut maybe_old_thread = state.reader_thread.lock().unwrap();
+    match maybe_old_thread.take() {
+        Some(old_thread) => {
+            println!("Stopping old thread");
+            old_thread
+            .join()
+            .unwrap_or(Err("Could not join thread".to_string()))
+            // The map here propogates the result string if its err, but exports an Ok(true) if not
+            .map(|_| true)
+        },
+
+        None => Ok(false),
+    }
 }
 
 #[tauri::command]
@@ -237,7 +253,8 @@ fn main() {
             get_ports,
             start_listen_server,
             test,
-            get_current_working_dir
+            get_current_working_dir,
+            stop_listen_server
         ])
         // .setup(|app| setup(app))
         .manage(ReaderThreadState {

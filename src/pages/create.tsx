@@ -1,13 +1,14 @@
 import { Navbar } from "@/components/Navbar";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/useToast";
 import { Card } from ".";
 import { reflashPartition } from "@/lib/services";
-import { NewCardsContext } from "./_app";
+import { NewCardsContext, PortContext } from "./_app";
 import CommandTerminal from "@/components/CommandTerminal";
 import { Command } from "@tauri-apps/api/shell";
 import { useError } from "@/hooks/useError";
+import type { UnlistenFn } from "@tauri-apps/api/event"
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -23,11 +24,47 @@ export default function CreateCard() {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const loadingBinaryCommand = useRef<Command | null>(null);
+	// This is responsible for tracking that the command is actually running a command as opposed to loading 
 	const [isRunningCommand, setRunningCommand] = useState<boolean>(false);
 
 	const [rfid, setRfid] = useState<string>("");
-	const router = useRouter();
+	const [serverRfid, setServerRfid] = useState<string>("");
 
+	const router = useRouter();
+	const [selectedPort, setSelectedPort] = useContext(PortContext);
+	const rfidEventUnlisten = useRef<UnlistenFn | null>(null);
+
+	const init = async () => {
+		const invoke = (await import('@tauri-apps/api')).invoke;
+		// Check here if the binary has already been loaded, start up the server
+		const listenServer = await invoke('start_listen_server', { "port": selectedPort });
+		console.log({ listenServer });
+		setToast("Started card reader... Scan to input RFID tag!")
+
+	}
+
+	const unMount = async () => {
+		const invoke = (await import('@tauri-apps/api')).invoke;
+		if (rfidEventUnlisten.current)
+			rfidEventUnlisten.current();
+		const stopServerRes = await invoke('stop_listen_server');
+		console.log({ stopServerRes });
+	}
+
+	useEffect(() => {
+		// init();
+		return () => {
+			unMount();
+		}
+	}, []);
+
+	useEffect(()=> {
+		// New rfid detected
+		if (serverRfid != rfid) {
+			setToast(`Detected new RFID: ${serverRfid}`);
+			setRfid(serverRfid)
+		}
+	}, [serverRfid]);
 
 	const createCard = async (name: string, password: string) => {
 		if (rfid == "") {
@@ -70,6 +107,72 @@ export default function CreateCard() {
 			setToast("Card created!");
 			router.push("/");
 		}
+	}
+
+	const onLoadReaderBin = async () => {
+		// LOAD CARD READER BINARY HERE
+		setIsLoading(true); // disabling all input
+		const Command = (await import('@tauri-apps/api/shell')).Command;
+		const invoke = (await import('@tauri-apps/api')).invoke;
+		const listen = (await import('@tauri-apps/api')).event.listen;
+		const path = (await import('@tauri-apps/api')).path;
+
+		const bootLoaderPath = await path.resolveResource("bin/arduino-bins/boot_app0.bin");
+		const bootLoaderQioPath = await path.resolveResource("bin/arduino-bins/bootloader_qio_80m.bin");
+		const rfidPath = await path.resolveResource("bin/arduino-bins/read_rfid.ino.bin");
+		const rfidPartitionPath = await path.resolveResource("bin/arduino-bins/read_rfid.ino.partitions.bin");
+
+		// const file = await path.resolveResource("bin/arduino-bins/binariesSource.txt");
+		// const resourceDirPath = await path.resourceDir();
+		// console.log({binResourcePath, fake, resourceDirPath});
+		// console.log("thing", await window.__TAURI__.fs.readTextFile(file));
+
+		// Resources are loaded in a path that is referenced in the same way it is stated in resources. eg. debug/bin/arduino-bins/bin
+		loadingBinaryCommand.current = Command.sidecar("bin/dist/esptool", [
+			`--chip`,
+			`esp32`,
+			`--port`,
+			selectedPort!,
+			`--baud`,
+			`921600`,
+			`--before`,
+			`default_reset`,
+			`--after`,
+			`hard_reset`,
+			`write_flash`,
+			`-z`,
+			`--flash_mode`,
+			`dio`,
+			`--flash_freq`,
+			`80m`,
+			`--flash_size`,
+			`detect`,
+			`0xe000`,
+			`${bootLoaderPath}`,
+			`0x1000`,
+			bootLoaderQioPath,
+			`0x10000`,
+			rfidPath,
+			`0x8000`,
+			rfidPartitionPath
+		]);
+		setRunningCommand(true);
+		const res = await loadingBinaryCommand.current.execute();
+		console.log({ res });
+		setToast(`Loaded Card Reader binary, starting reader server`);
+		setRunningCommand(false);
+		setIsLoading(false);
+
+		const listenServer = await invoke('start_listen_server', { "port": selectedPort });
+		console.log({ listenServer });
+
+		rfidEventUnlisten.current = await listen<string>("rfid", (e) => {
+			console.log(e.payload);
+			setServerRfid(e.payload);
+		})
+		setToast("Started card reader... Scan to input RFID tag!")
+
+		// 		C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.partitions.bin
 	}
 
 	return (
@@ -145,47 +248,14 @@ export default function CreateCard() {
 						</label>
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
 							<button
-								onClick={async () => {
-									// LOAD CARD READER BINARY HERE
-									setIsLoading(true); // disabling all input
-									const Command = (await import('@tauri-apps/api/shell')).Command;
-
-									loadingBinaryCommand.current = Command.sidecar("bin/dist/esptool", [
-										`--chip`,
-										`esp32`,
-										`--port`,
-										`COM4`,
-										`--baud`,
-										`921600`,
-										`--before`,
-										`default_reset`,
-										`--after`,
-										`hard_reset`,
-										`write_flash`,
-										`-z`,
-										`--flash_mode`,
-										`dio`,
-										`--flash_freq`,
-										`80m`,
-										`--flash_size`,
-										`detect`,
-										`0xe000`,
-
-
-									])
-									// 		C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.partitions.bin
-
-									// --chip esp32--port COM4--baud 921600 --before default_reset--after hard_reset write_flash - z--flash_mode dio--flash_freq 80m--flash_size detect 0xe000 C: \Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.partitions.bin
-
-
-								}}
+								onClick={onLoadReaderBin}
 								className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#454444] rounded-lg text-[white]">Load Card Reader Binary
 							</button>
 						</label>
 					</div>
 				</div>
 				{isLoading &&
-					<CommandTerminal className="p-6 flex w-auto text-left" commandObj={loadingBinaryCommand} enabled={isLoading} />
+					<CommandTerminal className="p-6 flex w-auto text-left" commandObj={loadingBinaryCommand} enabled={isRunningCommand} />
 				}
 			</div >
 		</>

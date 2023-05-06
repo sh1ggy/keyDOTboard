@@ -14,7 +14,8 @@
   "tauri": {
     "allowlist": {
       "fs": {
-        "all": true
+        "all": true,
+        "scope": ["$RESOURCE/bin/arduino-bins/*"]
       },
       "os": {
         "all": true
@@ -79,7 +80,9 @@
         "bin/dist/analyze_nvs",
         "bin/dist/nvs_gen"
       ],
-      "resources": [],
+      "resources": [
+        "bin/arduino-bins/*"
+      ],
       
       "icon": [
         "icons/32x32.png",

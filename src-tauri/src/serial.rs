@@ -1,7 +1,15 @@
 use core::time::Duration;
 
 use tauri::{AppHandle, Manager};
-pub fn read_rfid(app: AppHandle, port_path: String) {
+// For now string is fine, otherwise use, Result<(), Box<dyn std::error::Error>> or anyhow OR use this:
+// #[derive(Debug)]
+// enum ThreadError {
+//     FileError(io::Error),
+//     PortError(io::Error),
+// }
+// fn thread_function() -> Result<(), ThreadError> {
+
+pub fn read_rfid(app: AppHandle, port_path: String) -> Result<(), String>{
     // pub fn read_rfid() {
     // let app = process::app_handle().expect("failed to get app handle");
     // const PORT_PATH: &str = "COM4";
@@ -49,7 +57,10 @@ pub fn read_rfid(app: AppHandle, port_path: String) {
                                     serial_buf.push(byte[0]);
                                 }
                             }
-                            Err(err) => println!("Failed to read from port{}", err),
+                            Err(err) => {
+                                println!("Failed to read from port{}", err);
+                                return Err(err.to_string());
+                            },
                         }
                     }
                 }
@@ -79,6 +90,8 @@ pub fn read_rfid(app: AppHandle, port_path: String) {
         Err(e) => {
             // Emit error to client
             eprintln!("Failed to open \"{}\". Error: {}", port_path, e);
+            // Doing this is the same as using the ? error chaining operator on the port value, were just handling the matches ourselves
+            Err(e.to_string())
             // ::std::process::exit(1);
         }
     }
