@@ -192,7 +192,7 @@ export default function CreateCard() {
 				onClick={() => router.push("/")}
 				className="text-gray text-left p-3 bg-[#213352] w-full text-[white]">Back
 			</button>
-			<div className='flex flex-col h-screen w-screen p-3 items-center justify-center bg-[#5D616C]'>
+			<div className='flex flex-col h-screen w-full p-3 items-center justify-center bg-[#5D616C]'>
 				<div className="flex flex-col p-9 rounded-lg bg-[#292828]">
 					<code className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mt-3 mb-3'>
 						{isLoading &&
@@ -236,10 +236,10 @@ export default function CreateCard() {
 								onChange={e => { setPassword(e.target.value) }}
 							/>
 							<button
-								onClick={(e) => { 
+								onClick={(e) => {
 									e.preventDefault();
 									setShowPassword(!showPassword);
-								 }}
+								}}
 								disabled={isLoading}
 								className="inline-flex text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white bg-white rounded-r-lg">
 								{showPassword ?
@@ -250,7 +250,7 @@ export default function CreateCard() {
 							</button>
 						</div>
 					</form>
-					<div className="flex flex-row">
+					<div className="flex flex-row items-center justify-center">
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
 							<button
 								onClick={() => {
@@ -260,10 +260,14 @@ export default function CreateCard() {
 							</button>
 						</label>
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
-							<button
-								onClick={onLoadReaderBin}
-								className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#454444] rounded-lg text-[white]">Load Card Reader Binary
-							</button>
+							{ currBin != LoadedBinaryState.CardReader &&
+								<>
+									<button
+										onClick={onLoadReaderBin}
+										className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#454444] rounded-lg text-[white]">Load Card Reader Binary
+									</button>
+								</>
+							}
 						</label>
 					</div>
 				</div>
