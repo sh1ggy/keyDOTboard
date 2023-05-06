@@ -8,23 +8,18 @@ import Head from 'next/head';
 import '@/styles/globals.css'
 import '@/styles/xterm.css'
 
-interface IProps {
-  children: ReactNode;
-}
-
-export const SafeHydrate: FunctionComponent<IProps> = ({ children }) => {
-  return (
-    <div suppressHydrationWarning>
-      {typeof window === 'undefined' ? null : children}
-    </div>
-  )
-}
 
 // const CARDS_SEED: Card[] = [{
 //   name: "Test",
 //   password: "passwordle",
 //   rfid: "112233"
 // }];
+
+export enum LoadedBinaryState {
+  Unknown,
+  CardReader,
+  Main
+}
 
 // @ts-ignore
 export const PortContext = React.createContext<[string | null, React.Dispatch<React.SetStateAction<string | null>>]>(null);
@@ -33,11 +28,13 @@ export const LoadedCardsContext = React.createContext<[Card[], React.Dispatch<Re
 // @ts-ignore
 export const NewCardsContext = React.createContext<[Card[], React.Dispatch<React.SetStateAction<Card[]>>]>(null);
 // @ts-ignore
-export const LoadedBinaryContext = React.createContext<[string | null, React.Dispatch<React.SetStateAction<string | null>>]>(null);
+export const LoadedBinaryContext = React.createContext<[LoadedBinaryState, React.Dispatch<React.SetStateAction<LoadedBinaryState>>]>(null);
+
+const initialBinaryState = LoadedBinaryState.CardReader;
 
 export default function App({ Component, pageProps }: AppProps) {
   const portState = useState<string | null>(null);
-  const binaryState = useState<string | null>(null);
+  const binaryState = useState<LoadedBinaryState>(initialBinaryState);
   const cardsState = useState<Card[]>([]);
   const newCardsState = useState<Card[]>([]);
   const router = useRouter();

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/useToast";
 import { Card } from ".";
 import { reflashPartition } from "@/lib/services";
-import { NewCardsContext, PortContext } from "./_app";
+import { LoadedBinaryContext, LoadedBinaryState, NewCardsContext, PortContext } from "./_app";
 import CommandTerminal from "@/components/CommandTerminal";
 import { Command } from "@tauri-apps/api/shell";
 import { useError } from "@/hooks/useError";
@@ -33,14 +33,16 @@ export default function CreateCard() {
 	const router = useRouter();
 	const [selectedPort, setSelectedPort] = useContext(PortContext);
 	const rfidEventUnlisten = useRef<UnlistenFn | null>(null);
+	const [currBin, setCurrentBin] = useContext(LoadedBinaryContext);
 
 	const init = async () => {
 		const invoke = (await import('@tauri-apps/api')).invoke;
 		// Check here if the binary has already been loaded, start up the server
-		const listenServer = await invoke('start_listen_server', { "port": selectedPort });
-		console.log({ listenServer });
-		setToast("Started card reader... Scan to input RFID tag!")
-
+		if (currBin == LoadedBinaryState.CardReader) {
+			const listenServer = await invoke('start_listen_server', { "port": selectedPort });
+			console.log({ listenServer });
+			setToast("Started card reader... Scan to input RFID tag!")
+		}
 	}
 
 	const unMount = async () => {
@@ -52,13 +54,13 @@ export default function CreateCard() {
 	}
 
 	useEffect(() => {
-		// init();
+		init();
 		return () => {
 			unMount();
 		}
 	}, []);
 
-	useEffect(()=> {
+	useEffect(() => {
 		// New rfid detected
 		if (serverRfid != rfid) {
 			setToast(`Detected new RFID: ${serverRfid}`);
@@ -159,6 +161,7 @@ export default function CreateCard() {
 		setRunningCommand(true);
 		const res = await loadingBinaryCommand.current.execute();
 		console.log({ res });
+		setCurrentBin(LoadedBinaryState.CardReader);
 		setToast(`Loaded Card Reader binary, starting reader server`);
 		setRunningCommand(false);
 		setIsLoading(false);

@@ -7,12 +7,12 @@ mod serial;
 use std::{
     error::Error,
     sync::{Arc, Mutex},
-    time::{self, Duration},
+    time::{self},
 };
-use std::{io, num::ParseIntError, thread};
+use std::{thread};
 use tauri::{
     api::process::{Command, CommandEvent},
-    Config, Runtime, State,
+    App, AppHandle, Config, Manager, Runtime, State,
 };
 
 // Need to implement serde::deserialize trait on this to use in command
@@ -109,7 +109,7 @@ fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Bo
     wtr.write_record(&["kb", "namespace", "", ""])?;
 
     let mut uid_buffer = String::new();
-    let mut uid_count = cards.len();
+    let uid_count = cards.len();
 
     for (i, card) in cards.iter().enumerate() {
         println!("card lol: {:?}", card);
@@ -168,9 +168,9 @@ async fn save_cards_to_csv_command(
     match path_to_csv {
         Ok(path_to_csv) => Ok(path_to_csv.to_string()),
         Err(err) => {
-            let errString = format!("Could not csv: {}", err.to_string());
-            println!("{errString}");
-            return Err(errString);
+            let err_string = format!("Could not csv: {}", err.to_string());
+            println!("{err_string}");
+            return Err(err_string);
         }
     }
 }
@@ -198,14 +198,12 @@ async fn start_listen_server(
 ) -> Result<(), String> {
     let mut maybe_old_thread = state.reader_thread.lock().unwrap();
 
-    let mut sum_error: String = String::new();
     // kill the old thread
     // Take grabs the value from Option, leaving a none in its place, we need the value in order to actually run join
     if let Some(old_thread) = maybe_old_thread.take() {
         println!("Killing old thread");
         let join_res = old_thread.join();
         if let (Err(error)) = join_res {
-            // sum_error.push_str("" );
             println!("Could not kill old server");
         }
     }
@@ -219,18 +217,21 @@ async fn start_listen_server(
     Ok(())
 }
 
+// This HAS to be async in order to join properly so that the join doesnt block the main thread
 #[tauri::command]
-fn stop_listen_server(state: State<'_, ReaderThreadState>) -> Result<bool, String> {
+async fn stop_listen_server(state: State<'_, ReaderThreadState>) -> Result<bool, String> {
     let mut maybe_old_thread = state.reader_thread.lock().unwrap();
     match maybe_old_thread.take() {
         Some(old_thread) => {
             println!("Stopping old thread");
             old_thread
-            .join()
-            .unwrap_or(Err("Could not join thread".to_string()))
-            // The map here propogates the result string if its err, but exports an Ok(true) if not
-            .map(|_| true)
-        },
+                .join()
+                // .unwrap();
+                // Ok(true)
+                .unwrap_or(Err("Could not join thread".to_string()))
+                // // The map here propogates the result string if its err, but exports an Ok(true) if not
+                .map(|_| true)
+        }
 
         None => Ok(false),
     }
@@ -245,7 +246,6 @@ fn get_ports() -> Vec<String> {
     // }
 }
 
-use tauri::{App, AppHandle, Manager};
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
