@@ -4,12 +4,12 @@
 )]
 
 mod serial;
+use std::thread::{self, JoinHandle};
 use std::{
     error::Error,
-    sync::{Arc, Mutex},
+    sync::{atomic::AtomicBool, Arc, Mutex},
     time::{self},
 };
-use std::{thread};
 use tauri::{
     api::process::{Command, CommandEvent},
     App, AppHandle, Config, Manager, Runtime, State,
@@ -27,6 +27,7 @@ struct Card {
 struct ReaderThreadState {
     // Mutex allows our struct to implement DerefMut
     reader_thread: Mutex<Option<thread::JoinHandle<Result<(), String>>>>,
+    kill_signal: Arc<AtomicBool>,
 }
 
 #[derive(Default)]
@@ -189,41 +190,16 @@ async fn get_current_working_dir() -> Result<String, String> {
     }
 }
 
-#[tauri::command]
-async fn start_listen_server(
-    window: tauri::Window,
-    // Anonymous lifetime specified here because the state object needs to exist for the duration of the function and has reference to AppState
-    state: State<'_, ReaderThreadState>,
-    port: String,
-) -> Result<(), String> {
-    let mut maybe_old_thread = state.reader_thread.lock().unwrap();
-
-    // kill the old thread
+fn kill_old_server_thread(
+    maybe_old_thread: &mut Option<JoinHandle<Result<(), String>>>,
+    // Techinically the atomic bool here is mutable because the reference to the arc is just a reference to heap
+    killer: &Arc<AtomicBool>,
+) -> Result<bool, String> {
     // Take grabs the value from Option, leaving a none in its place, we need the value in order to actually run join
-    if let Some(old_thread) = maybe_old_thread.take() {
-        println!("Killing old thread");
-        let join_res = old_thread.join();
-        if let (Err(error)) = join_res {
-            println!("Could not kill old server");
-        }
-    }
-
-    let app = window.app_handle().clone();
-
-    let thread_handle = thread::spawn(move || serial::read_rfid(app, port));
-
-    *maybe_old_thread = Some(thread_handle);
-
-    Ok(())
-}
-
-// This HAS to be async in order to join properly so that the join doesnt block the main thread
-#[tauri::command]
-async fn stop_listen_server(state: State<'_, ReaderThreadState>) -> Result<bool, String> {
-    let mut maybe_old_thread = state.reader_thread.lock().unwrap();
     match maybe_old_thread.take() {
         Some(old_thread) => {
             println!("Stopping old thread");
+            killer.store(true, std::sync::atomic::Ordering::Relaxed);
             old_thread
                 .join()
                 // .unwrap();
@@ -235,6 +211,43 @@ async fn stop_listen_server(state: State<'_, ReaderThreadState>) -> Result<bool,
 
         None => Ok(false),
     }
+}
+
+#[tauri::command]
+async fn start_listen_server(
+    window: tauri::Window,
+    // Anonymous lifetime specified here because the state object needs to exist for the duration of the function and has reference to AppState
+    state: State<'_, ReaderThreadState>,
+    port: String,
+) -> Result<(), String> {
+    let mut maybe_old_thread = state.reader_thread.lock().unwrap();
+
+    let old_kill_res = kill_old_server_thread(&mut maybe_old_thread, &state.kill_signal);
+
+    // Using release here to ensure syncronisation of the CPU cache on store so that it gets commited to all threads,
+    // Release is only paired with store and doing this is better than just using SeqCst (Sequentially consistent) everywhere
+    state
+        .kill_signal
+        .store(false, std::sync::atomic::Ordering::Release);
+
+    let app = window.app_handle().clone();
+    let kil_signal_clone = state.kill_signal.clone();
+
+    let thread_handle = thread::spawn(move || serial::read_rfid(app, kil_signal_clone, port));
+
+    *maybe_old_thread = Some(thread_handle);
+
+    // This returns the error if it exists after the new one got started
+    old_kill_res?;
+
+    Ok(())
+}
+
+// This HAS to be async in order to join properly so that the join doesnt block the main thread
+#[tauri::command]
+async fn stop_listen_server(state: State<'_, ReaderThreadState>) -> Result<bool, String> {
+    let mut maybe_old_thread = state.reader_thread.lock().unwrap();
+    kill_old_server_thread(&mut maybe_old_thread, &state.kill_signal)
 }
 
 #[tauri::command]
@@ -259,6 +272,7 @@ fn main() {
         // .setup(|app| setup(app))
         .manage(ReaderThreadState {
             reader_thread: Mutex::new(None),
+            kill_signal: Arc::new(AtomicBool::new(true)),
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -36,11 +36,19 @@ export default function CreateCard() {
 	const [currBin, setCurrentBin] = useContext(LoadedBinaryContext);
 
 	const init = async () => {
-		const invoke = (await import('@tauri-apps/api')).invoke;
 		// Check here if the binary has already been loaded, start up the server
 		if (currBin == LoadedBinaryState.CardReader) {
+			const invoke = (await import('@tauri-apps/api')).invoke;
+			const listen = (await import('@tauri-apps/api')).event.listen;
+
 			const listenServer = await invoke('start_listen_server', { "port": selectedPort });
 			console.log({ listenServer });
+
+			rfidEventUnlisten.current = await listen<string>("rfid", (e) => {
+				console.log(e.payload);
+				setServerRfid(e.payload);
+			})
+
 			setToast("Started card reader... Scan to input RFID tag!")
 		}
 	}

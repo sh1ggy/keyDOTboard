@@ -1,5 +1,8 @@
 use core::time::Duration;
-use std::io;
+use std::{
+    io,
+    sync::{atomic::AtomicBool, Arc},
+};
 
 use tauri::{AppHandle, Manager};
 // For now string is fine, otherwise use, Result<(), Box<dyn std::error::Error>> or anyhow OR use this:
@@ -10,7 +13,11 @@ use tauri::{AppHandle, Manager};
 // }
 // fn thread_function() -> Result<(), ThreadError> {
 
-pub fn read_rfid(app: AppHandle, port_path: String) -> Result<(), String> {
+pub fn read_rfid(
+    app: AppHandle,
+    kill_signal: Arc<AtomicBool>,
+    port_path: String,
+) -> Result<(), String> {
     // pub fn read_rfid() {
     // let app = process::app_handle().expect("failed to get app handle");
     // const PORT_PATH: &str = "COM4";
@@ -27,41 +34,52 @@ pub fn read_rfid(app: AppHandle, port_path: String) -> Result<(), String> {
 
             loop {
                 let mut serial_buf: Vec<u8> = vec![0; 100];
-                if port.bytes_to_read().unwrap() > 0 {
-                    match port.read(serial_buf.as_mut_slice()) {
-                        Ok(_) => {
-                            // let converted = String::from_utf8(serial_buf.clone())
-                            //     .unwrap_or("Could not convert the bytes to utf8".to_string());
-                            // println!("{}", converted);
-
-                            let maybe_hex_string = String::from_utf8(serial_buf.clone());
-                            if let Ok(hex_string) = maybe_hex_string {
-                                let hex_string_trimmed: String = hex_string
-                                    .replace('\0', "")
-                                    .trim()
-                                    .chars()
-                                    .filter(|c| !c.is_whitespace())
-                                    .collect();
-                                let maybe_hex = hex::decode(&hex_string_trimmed);
-                                match maybe_hex {
-                                    Ok(hex_value) => {
-                                        let back_toString = hex::encode(&hex_value);
-                                        app.emit_all("rfid", &back_toString);
-                                        println!("WORKING!!!: {}", &back_toString)
-                                    }
-                                    Err(err) => {
-                                        println!("Unreadable Hex {}: {}", &hex_string_trimmed, err)
-                                    }
+                loop {
+                    if kill_signal.load(std::sync::atomic::Ordering::Relaxed) {
+                        println!("Kill signal recieved, killing thread");
+                        return Ok(())
+                    }
+                    // This is an array of size 1
+                    let mut byte = [0; 1];
+                    if port.bytes_to_read().unwrap() > 0 {
+                        let port_val = port.read(&mut byte);
+                        match port_val {
+                            Ok(_) => {
+                                if byte[0] == b'\n' {
+                                    break;
                                 }
-                            } else {
-                                eprintln!("Could not convert the bytes to utf8");
+                                if byte[0] != 0 {
+                                    serial_buf.push(byte[0]);
+                                }
+                            }
+                            Err(err) => {
+                                println!("Failed to read from port{}", err);
+                                return Err(err.to_string());
                             }
                         }
+                    }
+                }
 
-                        Err(ref e) if e.kind() == io::ErrorKind::TimedOut => {
-                            (eprintln!("No more content error, dont know how i got here"))
+                // The above method reads single byte by byte from serial, possible to also read whole serial buffer and split on newlines
+                // This proves the string we get is not immediately equal to the hex equivilant
+                // println!("Testing !!!: {}", hex::encode(&serial_buf));
+
+                let maybe_hex_string = String::from_utf8(serial_buf.clone());
+                if let Ok(hex_string) = maybe_hex_string {
+                    let hex_string_trimmed: String = hex_string
+                        .replace('\0', "")
+                        .trim()
+                        .chars()
+                        .filter(|c| !c.is_whitespace())
+                        .collect();
+                    let maybe_hex = hex::decode(&hex_string_trimmed);
+                    match maybe_hex {
+                        Ok(hex_value) => {
+                            let back_toString = hex::encode(&hex_value);
+                            app.emit_all("rfid", &back_toString);
+                            println!("WORKING!!!: {}", &back_toString)
                         }
-                        Err(e) => eprintln!("Read Error: {:?}", e),
+                        Err(err) => println!("Unreadable Hex {}: {}", &hex_string_trimmed, err),
                     }
                 }
             }
