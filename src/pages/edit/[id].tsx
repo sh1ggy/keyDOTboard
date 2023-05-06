@@ -4,6 +4,7 @@ import { NewCardsContext } from "@/pages/_app";
 import { useToast } from "@/hooks/useToast";
 import { usePrevious } from "@/hooks/usePrevious";
 import { useRouter } from "next/router";
+import { useError } from "@/hooks/useError";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -23,7 +24,7 @@ export default function EditView() {
 			for (const card of prev) {
 				if (cardName == card.name) {
 					console.log("dupe");
-					setToast(`Duplicate card name ${cardName}`);
+					setError(`Duplicate card name ${cardName}`);
 					exitEarly = true;
 					return prev;
 				}
@@ -44,6 +45,7 @@ export default function EditView() {
 	const [name, setName] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
+	const setError = useError();
 
 	useEffect(() => {
 		setName(cards[index].name);

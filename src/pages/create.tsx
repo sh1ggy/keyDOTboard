@@ -192,10 +192,9 @@ export default function CreateCard() {
 				onClick={() => router.push("/")}
 				className="text-gray text-left p-3 bg-[#213352] w-full text-[white]">Back
 			</button>
-
-			<div className='flex flex-col h-screen w-screen p-6 items-center justify-center bg-[#5D616C]'>
-				<div className="flex flex-col p-3 rounded-lg bg-[#292828]">
-					<code className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mb-3'>
+			<div className='flex flex-col h-screen w-screen p-3 items-center justify-center bg-[#5D616C]'>
+				<div className="flex flex-col p-9 rounded-lg bg-[#292828]">
+					<code className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mt-3 mb-3'>
 						{isLoading &&
 							<strong>UID: {!rfid ? "N/A" : rfid}</strong>
 						}
