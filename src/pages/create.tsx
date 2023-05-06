@@ -246,7 +246,10 @@ export default function CreateCard() {
 								onChange={e => { setPassword(e.target.value) }}
 							/>
 							<button
-								onClick={() => { setShowPassword(!showPassword); }}
+								onClick={(e) => { 
+									e.preventDefault();
+									setShowPassword(!showPassword);
+								 }}
 								disabled={isLoading}
 								className="inline-flex text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white bg-white rounded-r-lg">
 								{showPassword ?
