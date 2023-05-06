@@ -95,7 +95,7 @@ export default function PortSelection() {
 
 		if (analyzeRes.code != 0) {
 			// KeyError: 0
-			setToast("No previous Database found of esp, starting empty db");
+			setError("No previous database found on ESP device, starting empty DB");
 			setCards([]);
 			setRunningCommand(false);
 			router.push("/");
@@ -105,7 +105,7 @@ export default function PortSelection() {
 		const db = JSON.parse(analyzeRes.stdout) as DbType;
 		const nameSpace = db['kb'];
 		if (!nameSpace) {
-			setToast("No previous Database found of esp, starting empty db. [Namespace kb not found] ")
+			setToast("No previous DB found of ESP, starting empty DB. [Namespace KB not found] ")
 			setCards([]);
 			setRunningCommand(false);
 			router.push("/");
@@ -189,7 +189,7 @@ export default function PortSelection() {
 				<code className='bg-[#8F95A0] w-full p-3 px-3 text-sm'><strong>Selected Port: </strong>{!selectedPort ? "N/A" : selectedPort}</code>
 				<button
 					onClick={proceedToCardsScreen}
-					className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-700 py-3">
+					className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-600 hover:bg-green-700 py-3">
 					Connect To Device
 				</button>
 				<CommandTerminal enabled={isRunningCommand} className="p-6 flex w-auto bg-transparent" commandObj={getDataCommand} />

@@ -34,7 +34,7 @@ const GlobalErrorProvider: FunctionComponent<Props> = ({ children }) => {
     <ErrorContext.Provider value={setError}>
       {children}
       {/* toast for persistance through pages  */}
-      <div id="toast-default" className={`flex w-1/3 break-all transition-opacity duration-300 fixed bottom-0 left-0 items-center p-4 m-6 text-gray-500 bg-[#EB4C63] rounded-lg ${error ? 'opacity-100' : 'opacity-0'}`} role="alert">
+      <div id="toast-default" className={`flex w-2/5 break-all transition-opacity duration-300 fixed bottom-0 left-0 items-center p-4 m-6 text-gray-500 bg-[#EB4C63] rounded-lg ${error ? 'opacity-100' : 'opacity-0'}`} role="alert">
         <div className="text-sm font-normal text-white">
           <span><strong>ERROR:</strong> {remainingError}</span>
         </div>

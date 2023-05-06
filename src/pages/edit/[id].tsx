@@ -54,11 +54,12 @@ export default function EditView() {
 	return (
 		<>
 			<div className='flex flex-col mx-6 items-center h-screen overflow-hidden justify-center'>
-			<button
-				onClick={() => router.push("/")}
-				className="w-full absolute top-0 inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-[#213352]">
-				Back
-			</button>
+				<button
+					onClick={() => router.push("/")}
+					className="w-full absolute top-0 inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-[#213352]">
+					Back
+				</button>
+				<div className="justify-end absolute top-9 text-center text-white w-full text-xl py-6 px-3 bg-[#454444]"><strong>Editing {cards[index]?.name}</strong></div>
 				{/* <div className="justify-center text-white text-xl p-6 bg-[#213352] rounded-t-lg">Editing Card</div> */}
 				<div className="justify-center text-white p-6 bg-[#5D616C] items-center rounded-lg ">
 					<div className="my-6">

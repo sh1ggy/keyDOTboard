@@ -75,8 +75,8 @@ function App() {
       <Navbar />
       <div className={'flex flex-col w-full items-center min-h-screen bg-[rgb(41,40,40)] overflow-hidden'}>
         <div className="flex flex-col w-full items-center p-9 bg-[#5D616C] rounded-b-lg">
-          <code className='bg-[#373a41] p-3 rounded-lg text-[#F7C546]'>
-            <strong>Loaded Binary: {binary == LoadedBinaryState.Unknown ? "N/A" : LoadedBinaryState[binary]}</strong>
+          <code className='bg-[#373a41] p-3 my-3 rounded-lg text-[#F7C546]'>
+            <strong>Loaded Binary: {LoadedBinaryState[binary]}</strong>
           </code>
           <div className='flex flex-row my-8'>
             <code
@@ -90,7 +90,7 @@ function App() {
             {binary != LoadedBinaryState.Main &&
               <>
                 <button
-                  className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-[#18a04aee] rounded-lg text-white"
+                  className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-green-600 rounded-lg text-white"
                   onClick={() => {
                     router.push('/login');
                   }}>
@@ -109,7 +109,7 @@ function App() {
             <div className='flex flex-row'>
               <button
                 onClick={() => { router.push("/sync") }}
-                className={`${sync ? 'animate-bounce' : ''} text-gray text-center h-full p-3 m-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 rounded-lg text-[white]`}>
+                className={`${sync ? 'animate-bounce' : ''} text-gray text-center h-full p-3 m-3 bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-[white]`}>
                 Sync
               </button>
               <button
