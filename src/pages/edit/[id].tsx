@@ -8,8 +8,6 @@ import { useError } from "@/hooks/useError";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
-const dismissIcon = '/dismiss.svg'
-const saveIcon = '/save.svg'
 
 export default function EditView() {
 	const saveCard = (i: number) => {
