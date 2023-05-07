@@ -58,9 +58,6 @@ function App() {
     })
   }, []);
 
-  const sync = useMemo(() => {
-    return !arraysEqual(newCards, cards);
-  }, [newCards, cards]);
 
 
   const clearData = async () => {
@@ -75,7 +72,7 @@ function App() {
       <div className={'flex flex-col w-full items-center min-h-screen bg-[rgb(41,40,40)] overflow-hidden'}>
         <div className="flex flex-col w-full items-center p-9 bg-[#5D616C] rounded-b-lg">
           <code className='bg-[#373a41] p-3 my-3 rounded-lg text-[#F7C546]'>
-            <strong>Loaded Binary: {LoadedBinaryState[binary]}</strong>
+            <strong>Loaded Binary:</strong> {LoadedBinaryState[binary]}
           </code>
           <div className='flex flex-row my-8'>
             <code

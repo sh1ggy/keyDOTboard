@@ -111,6 +111,9 @@ export default function PortSelection() {
 		}
 		catch {
 			setError("Database may be corrupt on device, starting new DB", `DbParse result: ${truncateString(analyzeRes.stdout, 150)}`);
+			setCards([]);
+			setRunningCommand(false);
+			router.push("/");
 			return;
 		}
 		const nameSpace = db['kb'];

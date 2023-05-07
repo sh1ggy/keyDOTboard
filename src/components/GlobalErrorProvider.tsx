@@ -62,7 +62,7 @@ const GlobalErrorProvider: FunctionComponent<Props> = ({ children }) => {
           <button
             onClick={() => setError(null)}
             type="button"
-            className="bg-[#EB4C63] text-gray-400 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-[#b94455] inline-flex h-8 w-8" data-dismiss-target="#toast-undo" aria-label="Close">
+            className="select-none bg-[#EB4C63] text-gray-400 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-[#b94455] inline-flex h-8 w-8" data-dismiss-target="#toast-undo" aria-label="Close">
             <img className='object-contain w-6 h-6' src={dismissIcon} />
           </button>
         </div>
