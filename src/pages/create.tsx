@@ -205,13 +205,13 @@ export default function CreateCard() {
 				className="text-gray text-left p-3 bg-[#213352] w-full text-[white]">Back
 			</button>
 
-			{(currBin === LoadedBinaryState.CardReader) &&
+			{(currBin !== LoadedBinaryState.CardReader) &&
 				<>
 					<h1 className='select-none text-center text-green-700 text-6xl'>Scan to input id </h1>
 					<h3 className='select-none text-center text-green-700 text-sm'>You may have to press the reboot button on your esp</h3>
 				</>
 			}
-			<div className="justify-end text-center text-white w-full text-xl py-6 px-3 bg-[#454444]"><strong>Create Card</strong></div>
+			<div className="select-none justify-end text-center text-white w-full text-xl py-6 px-3 bg-[#454444]"><strong>Create Card</strong></div>
 			<div className='flex flex-col h-[75vh] align-middle w-full p-3 items-center justify-center bg-[#5D616C]'>
 				<div className="flex flex-col p-9 rounded-lg bg-[#292828]">
 					<code className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mt-3 mb-3'>

@@ -11,3 +11,12 @@ export function arraysEqual<Type>(a: Type[], b: Type[]) {
 }
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export function truncateString(str: string, charsToUse: number = 75) {
+  if (str.length <= charsToUse) {
+    return str;
+  } else {
+    const truncated = str.substr(0, charsToUse) + '...' + str.substr(-charsToUse);
+    return truncated;
+  }
+}
