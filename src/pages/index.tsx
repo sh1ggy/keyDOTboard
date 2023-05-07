@@ -105,18 +105,6 @@ function App() {
               }}>
               Create Card
             </button>
-            <div className='flex flex-row'>
-              <button
-                onClick={() => { router.push("/sync") }}
-                className={`${sync ? 'animate-bounce' : ''} text-gray text-center h-full p-3 m-3 bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-[white]`}>
-                Sync
-              </button>
-              <button
-                onClick={clearData}
-                className="text-gray text-center h-full p-3 m-3 text-[white]  bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" >
-                Reset Changes
-              </button>
-            </div>
           </div>
         </div>
         <div className='flex flex-row flex-wrap items-center pb-24'>
