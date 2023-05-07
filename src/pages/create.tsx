@@ -211,7 +211,8 @@ export default function CreateCard() {
 					<h3 className='select-none text-center text-green-700 text-sm'>You may have to press the reboot button on your esp</h3>
 				</>
 			}
-			<div className='flex flex-col h-screen w-full p-3 items-center justify-center bg-[#5D616C]'>
+			<div className="justify-end text-center text-white w-full text-xl py-6 px-3 bg-[#454444]"><strong>Create Card</strong></div>
+			<div className='flex flex-col h-[75vh] align-middle w-full p-3 items-center justify-center bg-[#5D616C]'>
 				<div className="flex flex-col p-9 rounded-lg bg-[#292828]">
 					<code className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mt-3 mb-3'>
 						{isLoading &&
@@ -275,7 +276,7 @@ export default function CreateCard() {
 								onClick={() => {
 									createCard(name, password);
 								}}
-								className="text-gray text-center p-3 m-3 bg-green-700 hover:bg-green-800 rounded-lg text-[white]">Create Card
+								className="text-gray text-center p-3 m-3 bg-green-600 hover:bg-green-700 rounded-lg text-[white]">Create Card
 							</button>
 						</label>
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
