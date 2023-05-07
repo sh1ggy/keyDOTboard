@@ -58,8 +58,9 @@ export const getEspBinDir = async () => {
 }
 export const getReadBinDir = async () => {
   const appDir = await path.appLocalDataDir();
-  const binFileName = `${Date.now()}_data.bin`;
-  const binDir = await path.join(appDir, binFileName);
+  // const binFileName = `${Date.now()}_data.bin`;
+  // const binDir = await path.join(appDir, binFileName);
+  const binDir = await path.join(appDir, `reading.bin`);
   return binDir;
 }
 

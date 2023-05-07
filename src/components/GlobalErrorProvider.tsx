@@ -9,7 +9,7 @@ type ErrorContextValue = React.Dispatch<React.SetStateAction<string | null>>;
 
 export const ErrorContext = createContext<ErrorContextValue>({} as ErrorContextValue);
 
-const ERROR_TOAST_DELAY = 3000;
+const ERROR_TOAST_DELAY = 10_000;
 
 const GlobalErrorProvider: FunctionComponent<Props> = ({ children }) => {
 

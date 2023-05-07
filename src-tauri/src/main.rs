@@ -199,7 +199,7 @@ fn kill_old_server_thread(
     match maybe_old_thread.take() {
         Some(old_thread) => {
             println!("Stopping old thread");
-            killer.store(true, std::sync::atomic::Ordering::Relaxed);
+            killer.store(true, std::sync::atomic::Ordering::SeqCst);
             old_thread
                 .join()
                 // .unwrap();
@@ -223,12 +223,14 @@ async fn start_listen_server(
     let mut maybe_old_thread = state.reader_thread.lock().unwrap();
 
     let old_kill_res = kill_old_server_thread(&mut maybe_old_thread, &state.kill_signal);
+    println!("{:?}", old_kill_res);
 
     // Using release here to ensure syncronisation of the CPU cache on store so that it gets commited to all threads,
     // Release is only paired with store and doing this is better than just using SeqCst (Sequentially consistent) everywhere
     state
         .kill_signal
-        .store(false, std::sync::atomic::Ordering::Release);
+        .store(false, std::sync::atomic::Ordering::SeqCst);
+    println!("Starting reader");
 
     let app = window.app_handle().clone();
     let kil_signal_clone = state.kill_signal.clone();
@@ -238,7 +240,7 @@ async fn start_listen_server(
     *maybe_old_thread = Some(thread_handle);
 
     // This returns the error if it exists after the new one got started
-    old_kill_res?;
+    // old_kill_res?;
 
     Ok(())
 }

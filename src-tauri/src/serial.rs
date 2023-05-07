@@ -33,14 +33,15 @@ pub fn read_rfid(
             println!("Receiving data on {} at {} baud:", &port_path, &BAUD_RATE);
 
             loop {
-                let mut serial_buf: Vec<u8> = vec![0; 100];
+                let mut serial_buf: Vec<u8> = Vec::new();
                 loop {
-                    if kill_signal.load(std::sync::atomic::Ordering::Relaxed) {
+                    if kill_signal.load(std::sync::atomic::Ordering::SeqCst) {
                         println!("Kill signal recieved, killing thread");
-                        return Ok(())
+                        return Ok(());
                     }
                     // This is an array of size 1
                     let mut byte = [0; 1];
+                    // TODO: dont unwrap here, this likely means the device may have been disconnected
                     if port.bytes_to_read().unwrap() > 0 {
                         let port_val = port.read(&mut byte);
                         match port_val {
@@ -63,9 +64,11 @@ pub fn read_rfid(
                 // The above method reads single byte by byte from serial, possible to also read whole serial buffer and split on newlines
                 // This proves the string we get is not immediately equal to the hex equivilant
                 // println!("Testing !!!: {}", hex::encode(&serial_buf));
+                println!("Testing !!!: {:?}", serial_buf);
 
                 let maybe_hex_string = String::from_utf8(serial_buf.clone());
                 if let Ok(hex_string) = maybe_hex_string {
+                    println!("Got string {}", hex_string);
                     let hex_string_trimmed: String = hex_string
                         .replace('\0', "")
                         .trim()
@@ -75,9 +78,16 @@ pub fn read_rfid(
                     let maybe_hex = hex::decode(&hex_string_trimmed);
                     match maybe_hex {
                         Ok(hex_value) => {
-                            let back_toString = hex::encode(&hex_value);
-                            app.emit_all("rfid", &back_toString);
-                            println!("WORKING!!!: {}", &back_toString)
+                            let back_to_string = hex::encode(&hex_value);
+                            let emit_res = app.emit_all("rfid", &back_to_string);
+                            if let (Err(emit_err)) = emit_res {
+                                eprintln!(
+                                    "Could not emit: {} with error: {}",
+                                    &back_to_string,
+                                    emit_err.to_string()
+                                );
+                            }
+                            println!("WORKING!!!: {}", &back_to_string)
                         }
                         Err(err) => println!("Unreadable Hex {}: {}", &hex_string_trimmed, err),
                     }

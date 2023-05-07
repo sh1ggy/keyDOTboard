@@ -9,6 +9,7 @@ import CommandTerminal from "@/components/CommandTerminal";
 import { Command } from "@tauri-apps/api/shell";
 import { useError } from "@/hooks/useError";
 import type { UnlistenFn } from "@tauri-apps/api/event"
+import { sleep } from "@/lib/utils";
 
 const eyeOffIcon = '/eyeOff.svg'
 const eyeOnIcon = '/eyeOn.svg'
@@ -37,7 +38,7 @@ export default function CreateCard() {
 
 	const init = async () => {
 		// Check here if the binary has already been loaded, start up the server
-		if (currBin == LoadedBinaryState.CardReader) {
+		if (currBin == LoadedBinaryState.CardReader ) {
 			const invoke = (await import('@tauri-apps/api')).invoke;
 			const listen = (await import('@tauri-apps/api')).event.listen;
 
@@ -183,6 +184,7 @@ export default function CreateCard() {
 		setToast(`Loaded Card Reader binary, starting reader server`);
 		setRunningCommand(false);
 		setIsLoading(false);
+		await sleep(500);
 
 		const listenServer = await invoke('start_listen_server', { "port": selectedPort });
 		console.log({ listenServer });
@@ -191,7 +193,7 @@ export default function CreateCard() {
 			console.log(e.payload);
 			setServerRfid(e.payload);
 		})
-		setToast("Started card reader... Scan to input RFID tag!")
+		setToast("You may have to reboot the device once to make it work!")
 
 		// 		C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_509800/read_rfid.ino.partitions.bin
 	}
@@ -202,6 +204,13 @@ export default function CreateCard() {
 				onClick={() => router.push("/")}
 				className="text-gray text-left p-3 bg-[#213352] w-full text-[white]">Back
 			</button>
+
+			{(currBin === LoadedBinaryState.CardReader) &&
+				<>
+					<h1 className='select-none text-center text-green-700 text-6xl'>Scan to input id </h1>
+					<h3 className='select-none text-center text-green-700 text-sm'>You may have to press the reboot button on your esp</h3>
+				</>
+			}
 			<div className='flex flex-col h-screen w-full p-3 items-center justify-center bg-[#5D616C]'>
 				<div className="flex flex-col p-9 rounded-lg bg-[#292828]">
 					<code className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mt-3 mb-3'>
@@ -270,7 +279,7 @@ export default function CreateCard() {
 							</button>
 						</label>
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
-							{ currBin != LoadedBinaryState.CardReader &&
+							{currBin != LoadedBinaryState.CardReader &&
 								<>
 									<button
 										onClick={onLoadReaderBin}

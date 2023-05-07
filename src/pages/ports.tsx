@@ -62,8 +62,6 @@ export default function PortSelection() {
 
 		// const espBin = await getEspBinDir();
 		// let readFileBin = await getReadBinDir();
-
-
 		// // Name of the sidecar has to match exactly to the scope name
 		// getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
 
@@ -76,12 +74,13 @@ export default function PortSelection() {
 		// 	const bootModeErrorString = "Wrong boot mode detected (0x13)";
 		// 	if (res.stdout.includes(bootModeErrorString)) {
 		// 		// Ping the user that they need to hold down the boot button and try again
-		// 		setToast(`You seem to have a buggy esp. \
+		// 		setError(`You seem to have a buggy esp. \
 		// 		Please hold down the Boot button for the duration of this terminal running Or while \`Serial port ${selectedPort}\` is showing`);
 		// 		setRunningCommand(false);
 		// 		return;
 		// 	}
 		// }
+
 
 		let readFileBin = String.raw`C:\Users\anhad\AppData\Local\com.kongi.dev\1683189187486_data.bin`
 
@@ -124,7 +123,7 @@ export default function PortSelection() {
 			gottenCards.push({
 				name: nameSpace[`name${i}`].value,
 				password: nameSpace[`pass${i}`].value,
-				rfid: unflattenedUids[i].join(' '),
+				rfid: unflattenedUids[i].join('').toLowerCase(),
 			});
 		}
 

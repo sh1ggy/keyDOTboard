@@ -12,7 +12,6 @@ import { useToast } from '@/hooks/useToast';
 import { arraysEqual } from '@/lib/utils';
 import { LoadedBinaryState } from './_app';
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export interface Card {
   name: string;
