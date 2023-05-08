@@ -4,11 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { LoadedCardsContext, NewCardsContext, PortContext } from './_app';
 import { getEspBinDir } from '@/lib/services';
+import { useToast } from '@/hooks/useToast';
 
 export default function SyncView() {
   const [isLoading, setisLoading] = useState<boolean>(false);
   const syncCommand = useRef<Command | null>(null);
   const router = useRouter();
+  const setToast = useToast();
   const [newCards, setNewCards] = useContext(NewCardsContext);
   const [cards, setCards] = useContext(LoadedCardsContext);
   const [selectedPort, setSelectedPort] = useContext(PortContext);
@@ -36,12 +38,16 @@ export default function SyncView() {
     const part_res = await syncCommand.current.execute();
     setisLoading(false);
     console.log({part_res});
+    setToast("Finished syncing! Please load ")
 
-    // TODO: abstract to hook
-    setNewCards([]);
-    setCards([]);
+
+    // Dont go back to ports so that user can still do stuff like load main binary on a granular level
     
-    router.push('/ports');
+    // // TODO: abstract to hook
+    // setNewCards([]);
+    // setCards([]);
+    // router.push('/ports');
+    router.push('/');
 
   }
 

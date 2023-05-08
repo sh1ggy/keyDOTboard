@@ -3,8 +3,9 @@
 #include <MFRC522.h>
 #include <Preferences.h>
 #include <Base64.h>
-#include "Keyboard.h"
-
+// For the reason that relative imports are just not allowed https://insigh.io/blog/how-to-structure-a-project-to-be-compilable-by-arduino-ide-and-platformio-part-1/
+// use platform.io next time if wanting to do something reasonably complicated and requiring shared libs
+// #include "kb.hpp"
 #define RST_PIN 9 // Configurable, see typical pin layout above
 #define SS_PIN 5	// Configurable, see typical pin layout above
 
@@ -20,6 +21,7 @@ byte tag[10]={0x64,0xAE,0xDD,0xFC,};
 char pswd[]="********\n";      //password, end with just \n
 void print_byte_array(byte *byte_arr, size_t arr_size)
 {
+	
 
 	for (size_t i = 0; i < arr_size; i++)
 	{
@@ -38,6 +40,7 @@ void setup()
 {
 	Serial.begin(115200); // Initialize serial communications with the PC
 
+
 	// Connect to RFID readter
 	SPI.begin();											 // Init SPI bus
 	mfrc522.PCD_Init();								 // Init MFRC522
@@ -50,9 +53,7 @@ void setup()
 	preferences.begin("kb", true);
 
 	uid_count = preferences.getUInt("num_cards", 0);
-	// size_t uid_buffer_length = uid_count * 4;
 	size_t uid_buffer_length = preferences.getBytesLength("uids");
-	// unsigned char uid_buffer[uid_buffer_length];
 
 	preferences.getBytes("uids", uid_cache, uid_buffer_length);
 	Serial.println("Buffer Length " + String(uid_buffer_length) + "Num cards" + String(uid_count));
@@ -118,5 +119,6 @@ void loop()
 	Keyboard.print(KEY_ENTER);
 	// Keyboard.releaseAll()
 
+	// If we get here, halt mifare for about 1 second before resuming the loop regularly  
 	delay(1000);
 }

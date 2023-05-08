@@ -91,9 +91,9 @@ function App() {
                 <button
                   className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-green-600 rounded-lg text-white"
                   onClick={() => {
-                    router.push('/login');
+                    router.push('/load_main');
                   }}>
-                  Load Login Binary
+                  Load Key Binary
                 </button>
               </>
             }

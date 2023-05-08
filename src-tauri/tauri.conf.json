@@ -117,7 +117,8 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 900,
+        "maximized": true,
+        "height": 700,
         "resizable": true,
         "title": "key.board",
         "width": 1200
