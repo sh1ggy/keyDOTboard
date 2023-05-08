@@ -1,6 +1,9 @@
-# keyDOTboard
+![kongi](./public/wlogo.svg)
+
 
 ![kongi](https://img.shields.io/badge/kongi-purple?style=plastic) ![Year](https://img.shields.io/badge/Year-2023-red?style=plastic) ![Language](https://img.shields.io/badge/TypeScript-grey?style=plastic&logo=typescript)  ![Framework](https://img.shields.io/badge/NextJS-grey?style=plastic&logo=next.js) ![Framework](https://img.shields.io/badge/Tauri-grey?style=plastic&logo=tauri)
+
+--- 
 
 This is the entire codebase of a hardware-focused project made as a part of the [2023 Arduino Hackathon](https://www.facebook.com/events/165398366306829/) hosted by UQ Mars, RoboGals & QUT Robotics Club. The theme of the hackathon was **automation**, with our project following that by attempting to automate logins with RFID technology.
 
