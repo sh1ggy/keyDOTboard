@@ -18,7 +18,7 @@ import '@/styles/xterm.css'
 export enum LoadedBinaryState {
   Unknown,
   CardReader,
-  Main
+  Key
 }
 
 // @ts-ignore

@@ -43,6 +43,7 @@
 void bluetoothTask(void *);
 void typeText(const char *text);
 void print_byte_array(byte *byte_arr, size_t arr_size);
+void enterPass(const char *text);
 
 bool isBleConnected = false;
 
@@ -130,13 +131,15 @@ void loop()
     digitalWrite(2, HIGH);
     // char selectedIdChars[10];
     // itoa(selectedId, selectedIdChars, 9);
-    auto pswdKey = "name" + String(selectedId);
+    // auto pswdKey = "name" + String(selectedId);
+    auto pswdKey = "pass" + String(selectedId);
     Serial.println("Epic found, trying " + pswdKey);
 
     auto pswd = preferences.getString(pswdKey.c_str());
-    Serial.println("Sending password " + pswd);
+    // Serial.println("Sending password " + pswd);
 
-    typeText(pswd.c_str());
+    enterPass(pswd.c_str());
+    // typeText(pswd.c_str());
     delay(1000);
 }
 
@@ -340,4 +343,88 @@ void print_byte_array(byte *byte_arr, size_t arr_size)
         Serial.print(byte_arr[i], HEX);
     }
     Serial.print("\n");
+}
+
+#define SPACES_PRESSED 4
+
+void enterPass(const char *text)
+{
+
+    uint8_t space_val = 0x2c;
+
+    for (int i = 0; i < SPACES_PRESSED; i++)
+    {
+        InputReport space = {
+            .modifiers = 0,
+            .reserved = 0,
+            .pressedKeys = {
+                space_val,
+                0, 0, 0, 0, 0}};
+
+        // send the input report
+        input->setValue((uint8_t *)&space, sizeof(space));
+        input->notify();
+
+        delay(100);
+    }
+
+    delay(1000);
+
+    uint8_t val = 0x04;
+
+    InputReport ctrla = {
+        .modifiers = KEY_CTRL,
+        .reserved = 0,
+        .pressedKeys = {
+            val,
+            0, 0, 0, 0, 0}};
+
+    // send the input report
+    input->setValue((uint8_t *)&ctrla, sizeof(ctrla));
+    input->notify();
+
+    delay(50);
+
+    // uint8_t
+    unsigned char backSpaceKey = 0x2a;
+    InputReport report = {
+        .modifiers = 0,
+        .reserved = 0,
+        .pressedKeys = {
+            backSpaceKey,
+            0, 0, 0, 0, 0}};
+
+    // send the input report
+    input->setValue((uint8_t *)&report, sizeof(report));
+    input->notify();
+
+    // release all keys between two characters; otherwise two identical
+    // consecutive characters are treated as just one key press
+    input->setValue((uint8_t *)&NO_KEY_PRESSED, sizeof(NO_KEY_PRESSED));
+    input->notify();
+
+    delay(5);
+
+    typeText(text);
+
+    unsigned char enterKey = 0x28;
+    InputReport enterReport = {
+        .modifiers = 0,
+        .reserved = 0,
+        .pressedKeys = {
+            enterKey,
+            0, 0, 0, 0, 0}};
+
+    // send the input report
+    input->setValue((uint8_t *)&enterReport, sizeof(enterReport));
+    input->notify();
+
+    delay(5);
+
+    // release all keys between two characters; otherwise two identical
+    // consecutive characters are treated as just one key press
+    input->setValue((uint8_t *)&NO_KEY_PRESSED, sizeof(NO_KEY_PRESSED));
+    input->notify();
+
+    delay(5);
 }

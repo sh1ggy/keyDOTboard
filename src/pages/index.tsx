@@ -83,7 +83,7 @@ function App() {
               className='cursor-pointer transition duration-300 hover:scale-105 bg-[#8F95A0] p-3 rounded-lg'>
               <strong>Port Selected: </strong>{selectedPort}
             </code>
-            {binary != LoadedBinaryState.Main &&
+            {binary != LoadedBinaryState.Key &&
               <>
                 <button
                   className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-green-600 rounded-lg text-white"

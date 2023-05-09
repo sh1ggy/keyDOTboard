@@ -30,6 +30,7 @@ class CtrlCXtermAddon implements ITerminalAddon {
         });
     }
     dispose(): void {
+
         console.log("Disposing CtrlC terminal addon");
 
         // throw new Error('Method not implemented.');
@@ -68,17 +69,17 @@ class CommandTerminal extends React.Component<IProps, IState> {
         // - xterm-addon-search 0.11.0
         // - xterm-addon-search-bar 0.2.0
         // Very interesting rabbit hole about tree shaking and dynamic imports https://stackoverflow.com/questions/66014730/next-js-bundle-size-is-exploding-as-a-result-of-dynamic-component-lookup-how-to
-        const WebLinksAddon = (await import('xterm-addon-web-links')).WebLinksAddon;
+        // const WebLinksAddon = (await import('xterm-addon-web-links')).WebLinksAddon;
 
         // https://github.com/xtermjs/xterm.js/issues/2478
         // Maybe xterm isnt the best for this 
 
         this.terminal = new Terminal();
         const fit = new FitAddon();
-        const links = new WebLinksAddon();
+        // const links = new WebLinksAddon();
         const ctrlc = new CtrlCXtermAddon();
         this.terminal.loadAddon(fit);
-        this.terminal.loadAddon(links);
+        // this.terminal.loadAddon(links);
         this.terminal.loadAddon(ctrlc);
         // Whenever this resizes, call fit
         fit.fit();

@@ -38,7 +38,8 @@ export default function SyncView() {
     const part_res = await syncCommand.current.execute();
     setisLoading(false);
     console.log({part_res});
-    setToast("Finished syncing! Please load ")
+    setCards(newCards);
+    setToast("Finished syncing! Please load Key binary to use the device now")
 
 
     // Dont go back to ports so that user can still do stuff like load main binary on a granular level
