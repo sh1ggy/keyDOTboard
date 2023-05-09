@@ -60,33 +60,33 @@ export default function PortSelection() {
 
 		const Command = (await import('@tauri-apps/api/shell')).Command;
 
-		// const espBin = await getEspBinDir();
-		// let readFileBin = await getReadBinDir();
-		// // Name of the sidecar has to match exactly to the scope name
-		// getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
+		const espBin = await getEspBinDir();
+		let readFileBin = await getReadBinDir();
+		// Name of the sidecar has to match exactly to the scope name
+		getDataCommand.current = Command.sidecar('bin/dist/parttool', [`-e`, `${espBin}`, `--port`, `${selectedPort}`, `--baud`, `115200`, `read_partition`, `--partition-name=nvs`, `--output`, readFileBin]);
 
-		// // Not needed as execute also submits events for stdout and is more async await agnostic
-		// // const childProcess = await getDataCommand.current.spawn();
-		// setRunningCommand(true);
+		// Not needed as execute also submits events for stdout and is more async await agnostic
+		// const childProcess = await getDataCommand.current.spawn();
+		setRunningCommand(true);
 
-		// let res = await getDataCommand.current.execute();
-		// if (res.code != 0) {
-		// 	const bootModeErrorString = "Wrong boot mode detected (0x13)";
-		// 	if (res.stdout.includes(bootModeErrorString)) {
-		// 		// Ping the user that they need to hold down the boot button and try again
-		// 		setError(`You have a buggy ESP32. \
-		// 		Please hold down the BOOT button while the terminal is running commands, or while \`Serial port ${selectedPort}\` is showing`);
-		// 	}
-		// 	else {
-		// 		setError(`Invalid ESP32 port detected, please select a valid port to connect to.`);
-		// 	}
-		// 	setRunningCommand(false);
-		// 	return;
+		let res = await getDataCommand.current.execute();
+		if (res.code != 0) {
+			const bootModeErrorString = "Wrong boot mode detected (0x13)";
+			if (res.stdout.includes(bootModeErrorString)) {
+				// Ping the user that they need to hold down the boot button and try again
+				setError(`You have a buggy ESP32. \
+				Please hold down the BOOT button while the terminal is running commands, or while \`Serial port ${selectedPort}\` is showing`);
+			}
+			else {
+				setError(`Invalid ESP32 port detected, please select a valid port to connect to.`);
+			}
+			setRunningCommand(false);
+			return;
 			
-		// }
+		}
 
 
-		let readFileBin = String.raw`C:\Users\anhad\AppData\Local\com.kongi.dev\1683189187486_data.bin`
+		// let readFileBin = String.raw`C:\Users\anhad\AppData\Local\com.kongi.dev\1683189187486_data.bin`
 
 		setToast(`Saved BinaryFile in: ${readFileBin}`);
 		setRunningCommand(false);
