@@ -113,6 +113,7 @@
 }
 
 .xterm .xterm-screen {
+    heigh: 1px;
     position: relative;
 }
 

@@ -198,7 +198,7 @@ export default function CreateCard() {
 		<>
 			<button
 				onClick={() => router.push("/")}
-				className="text-gray text-left p-3 bg-[#213352] w-full text-[white]">Back
+				className="text-gray text-left p-3 bg-[#213352] w-full text-[white] focus:outline-none focus:ring-[#213352]">Back
 			</button>
 			<div className="select-none justify-end text-center text-white w-full text-xl py-6 px-3 bg-[#454444]"><strong>Create Card</strong></div>
 			<div className='flex flex-col h-[75vh] align-middle w-full p-3 items-center justify-center bg-[#5D616C]'>
@@ -221,7 +221,7 @@ export default function CreateCard() {
 										type="text"
 										disabled={isLoading}
 										placeholder="enter UID..."
-										className="input bg-inherit focus:outline-none text-white placeholder-white px-3 rounded-lg"
+										className="input bg-inherit focus:outline-none focus:ring-slate text-white placeholder-white px-3 rounded-lg"
 										onChange={e => { setRfid(e.target.value) }}
 										value={rfid}
 									/>
@@ -233,7 +233,7 @@ export default function CreateCard() {
 								type="text"
 								disabled={isLoading}
 								placeholder="enter name..."
-								className="input bg-white text-dim-gray py-3 pl-3 pr-[3.75rem] m-3 rounded-lg"
+								className="input bg-white focus:outline-none focus:ring-slate text-dim-gray py-3 pl-3 pr-[3.75rem] m-3 rounded-lg"
 								onChange={e => { setName(e.target.value) }}
 							/>
 						</div>
@@ -242,7 +242,7 @@ export default function CreateCard() {
 								type={`${showPassword ? 'text' : 'password'}`}
 								disabled={isLoading}
 								placeholder="enter password..."
-								className="input bg-white text-dim-gray p-3 mb-3 rounded-l-lg"
+								className="input focus:outline-none focus:ring-slate bg-white text-dim-gray p-3 mb-3 rounded-l-lg"
 								onChange={e => { setPassword(e.target.value) }}
 							/>
 							<button
@@ -252,7 +252,7 @@ export default function CreateCard() {
 								}}
 								type={"button"}
 								disabled={isLoading}
-								className="inline-flex text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white bg-white rounded-r-lg">
+								className="inline-flex focus:outline-none focus:ring-slate text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white bg-white rounded-r-lg">
 								{showPassword ?
 									<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
 									:
@@ -267,7 +267,7 @@ export default function CreateCard() {
 										<button
 											onClick={onLoadReaderBin}
 											type={"button"}
-											className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#454444] rounded-lg text-[white]">Load Card Reader Binary
+											className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#454444] rounded-lg text-[white] focus:ring-4 focus:outline-none focus:ring-[#454444]">Load Card Reader Binary
 										</button>
 									</>
 								}
@@ -276,7 +276,7 @@ export default function CreateCard() {
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
 							<button
 								type={"submit"}
-								className="text-gray text-center p-3 m-3 bg-green-600 hover:bg-green-700 rounded-lg text-[white]">Create Card
+								className="text-gray text-center p-3 m-3 bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-[white]">Create Card
 							</button>
 						</label>
 					</form>
@@ -287,8 +287,8 @@ export default function CreateCard() {
 						</div>
 					}
 				</div>
-				<CommandTerminal className={`p-6 ${!isLoading && 'hidden'} flex w-auto text-left`} commandObj={loadingBinaryCommand} enabled={isRunningCommand} />
 			</div >
+				<CommandTerminal className={`p-6 ${!isLoading && 'hidden'} flex w-auto text-left`} commandObj={loadingBinaryCommand} enabled={isRunningCommand} />
 		</>
 	)
 }

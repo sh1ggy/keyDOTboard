@@ -48,12 +48,12 @@ export default function EditView() {
 					className="w-full absolute top-0 inline-flex px-3 py-2 text-sm font-medium text-center text-white bg-[#213352]">
 					Back
 				</button>
-				<div className="justify-end absolute top-9 text-center text-white w-full text-xl py-6 px-3 bg-[#454444]"><strong>Editing {cards[index]?.name}</strong></div>
+				<div className="justify-end absolute top-9 text-center text-white w-full text-xl py-6 px-3 bg-[#454444] break-all"><strong>Editing {cards[index]?.name}</strong></div>
 				{/* <div className="justify-center text-white text-xl p-6 bg-[#213352] rounded-t-lg">Editing Card</div> */}
 				<div className="justify-center text-white p-6 bg-[#5D616C] items-center rounded-lg ">
 					<div className="my-6">
-						<code className='text-sm font-bold tracking-tight text-gray-900 bg-[#8F95A0] rounded-lg p-3 mb-3'>
-							ID: {cards[index]?.rfid}
+						<code className='text-sm tracking-tight text-gray-900 bg-[#8F95A0] rounded-lg p-3 mb-3'>
+							<strong>ID: </strong>{cards[index]?.rfid}
 						</code>
 					</div>
 					<form
@@ -63,14 +63,14 @@ export default function EditView() {
 						}}
 						className="flex flex-col items-center"
 					>
-						<div className="input w-full max-w-xs bg-[#747986] text-white text-dim-gray p-3 mb-3 border-neutral-300 rounded-lg">
-							{cards[index].name}
+						<div className="input w-full max-w-xs bg-[#747986] text-white text-dim-gray p-3 mb-3 break-all border-neutral-300 rounded-lg">
+							<strong>Name: </strong>{cards[index].name}
 						</div>
 						<div className='flex flex-row items-center pb-3'>
 							<input
 								type={`${showPassword ? 'text' : 'password'}`}
 								placeholder="enter password..."
-								className="input w-full max-w-xs bg-white text-black text-dim-gray p-3 rounded-l-lg"
+								className="input w-full focus:outline-none max-w-xs bg-white text-black text-dim-gray p-3 rounded-l-lg"
 								onChange={e => { setPassword(e.target.value) }}
 							/>
 							<button
@@ -78,7 +78,7 @@ export default function EditView() {
 									setShowPassword(!showPassword);
 								}}
 								type={"button"}
-								className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white p-3">
+								className="inline-flex focus:outline-none text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white p-3">
 								{showPassword ?
 									<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
 									:
@@ -89,7 +89,7 @@ export default function EditView() {
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
 							<button
 								onClick={() => () => saveCard(index)}
-								className="text-gray text-center p-3 m-3 bg-green-600 hover:bg-green-700 rounded-lg text-[white]">Save Card
+								className="text-gray text-center p-3 m-3 bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-[white]">Save Card
 							</button>
 						</label>
 					</form>
