@@ -79,6 +79,7 @@ export default function PortSelection() {
 			}
 			else {
 				setError(`Invalid ESP32 port detected, please select a valid port to connect to.`);
+				// router.push("/");
 			}
 			setRunningCommand(false);
 			return;
@@ -170,16 +171,16 @@ export default function PortSelection() {
 					const recvPorts = await getPorts();
 					setPorts(recvPorts);
 				}}
-				className="flex px-6 text-sm font-medium text-right justify-end w-screen text-white bg-black py-3">
+				className="flex px-2 text-sm font-medium text-right justify-end w-full text-white bg-black py-3">
 				Force Detect Ports
 			</button>
-			<div className="flex flex-col items-center bg-[#292828] h-full w-screen">
-				<div className="justify-center text-white w-screen text-xl py-6 px-3 bg-[#213352]"><strong>Port Selection</strong></div>
-				<ul className="text-sm text-black bg-[#51555D]" aria-labelledby="dropdownDefaultButton">
+			<div className="flex flex-col items-center bg-[#292828] h-full w-full">
+				<div className="justify-center text-white w-full text-xl py-6 px-3 bg-[#213352]"><strong>Port Selection</strong></div>
+				<ul className="text-sm text-black w-full bg-[#51555D]" aria-labelledby="dropdownDefaultButton">
 					{
 						(ports.length == 0) ?
 							<li>
-								<a className="select-none block w-screen px-3 py-2 text-white bg-gray-500">No ports</a>
+								<a className="select-none block w-full px-3 py-2 text-white bg-gray-500">No ports</a>
 							</li>
 							:
 							ports.map((p, i) => {
@@ -187,13 +188,13 @@ export default function PortSelection() {
 									<>
 										{(selectedPort == p) ?
 											<li key={i} className="cursor-pointer">
-												<a className="select-none block w-screen px-3 py-2 bg-gray-500 text-white" onClick={() => {
+												<a className="select-none block w-full px-3 py-2 bg-gray-500 text-white" onClick={() => {
 													setSelectedPort(p);
 												}}>{p}</a>
 											</li>
 											:
 											<li key={i} className="cursor-pointer">
-												<a className="select-none block w-screen px-3 py-2 text-white hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white active:animate-pulse" onClick={() => {
+												<a className="select-none block w-full px-3 py-2 text-white hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white active:animate-pulse" onClick={() => {
 													setSelectedPort(p);
 												}}>{p}</a>
 											</li>
@@ -207,7 +208,7 @@ export default function PortSelection() {
 				<button
 					disabled={isRunningCommand}
 					onClick={proceedToCardsScreen}
-					className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-600 hover:bg-green-700 py-3">
+					className="flex disabled:bg-green-800 disabled:cursor-not-allowed disabled:text-slate focus:ring-4 focus:outline-none focus:ring-green-300 text-sm p-3 font-medium text-center items-center justify-center w-full text-white bg-green-600 hover:bg-green-700 py-3">
 					Connect To Device
 				</button>
 				<CommandTerminal enabled={isRunningCommand} className="p-6 flex w-auto bg-transparent" commandObj={getDataCommand} />

@@ -86,9 +86,9 @@ function App() {
             {binary != LoadedBinaryState.Key &&
               <>
                 <button
-                  className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 bg-green-600 rounded-lg text-white"
+                  className="text-gray cursor-pointer transition duration-300 hover:scale-105 text-center p-3 ml-5 focus:ring-4 focus:outline-none focus:ring-green-300 bg-green-600 rounded-lg text-white"
                   onClick={() => {
-                    router.push('/load_main');
+                    router.push('/load-main');
                   }}>
                   Load Key Binary
                 </button>
@@ -96,7 +96,7 @@ function App() {
             }
           </div>
           <div className='flex flex-col'>
-            <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 ext-center p-3 m-3 bg-[#292828] rounded-lg text-white"
+            <button className="text-gray cursor-pointer transition duration-300 hover:scale-105 ext-center p-3 m-3 bg-[#292828] focus:ring-4 focus:outline-none focus:ring-[#454444] rounded-lg text-white"
               onClick={() => {
                 router.push('/create');
               }}>

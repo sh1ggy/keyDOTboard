@@ -49,8 +49,6 @@ export default function CreateCard() {
 				console.log(e.payload);
 				setServerRfid(e.payload);
 			})
-
-			setToast("Started card reader... Scan to input RFID tag!")
 		}
 	}
 
@@ -96,14 +94,13 @@ export default function CreateCard() {
 			password,
 			rfid,
 		}
-
+		
 		let exitEarly = false;
 		setNewCards((prev) => {
-			const cardName = newCard.name;
 			for (const card of prev) {
-				if (cardName == card.name) {
+				if (name === card.name) {
 					console.log("dupe");
-					setError(`Duplicate card name ${cardName}`);
+					setError(`Duplicate card name ${name}`);
 					exitEarly = true;
 					return prev;
 				}
@@ -114,10 +111,9 @@ export default function CreateCard() {
 
 		if (exitEarly) return;
 
-		if (!exitEarly) {
-			setToast("Card created!");
-			router.push("/");
-		}
+		setToast("Card created!");
+		router.push("/");
+
 	}
 
 	const onLoadReaderBin = async () => {
@@ -202,28 +198,11 @@ export default function CreateCard() {
 		<>
 			<button
 				onClick={() => router.push("/")}
-				className="text-gray text-left p-3 bg-[#213352] w-full text-[white]">Back
+				className="text-gray text-left p-3 bg-[#213352] w-full text-[white] focus:outline-none focus:ring-[#213352]">Back
 			</button>
 			<div className="select-none justify-end text-center text-white w-full text-xl py-6 px-3 bg-[#454444]"><strong>Create Card</strong></div>
 			<div className='flex flex-col h-[75vh] align-middle w-full p-3 items-center justify-center bg-[#5D616C]'>
 				<div className="flex flex-col p-9 rounded-lg bg-[#292828]">
-					<code className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mt-3 mb-3'>
-						{isLoading &&
-							<strong>UID: {!rfid ? "N/A" : rfid}</strong>
-						}
-						{!isLoading &&
-							<>
-								<strong>UID: </strong>
-								<input
-									type="text"
-									placeholder="enter UID..."
-									className="input bg-inherit focus:outline-none text-white placeholder-white px-3 rounded-lg"
-									onChange={e => { setRfid(e.target.value) }}
-									value={rfid}
-								/>
-							</>
-						}
-					</code>
 					<form
 						onSubmit={(e) => {
 							e.preventDefault();
@@ -231,12 +210,30 @@ export default function CreateCard() {
 						}}
 						className="flex flex-col items-center"
 					>
+						<code className='bg-[#8F95A0] cursor-pointer transition duration-300 hover:scale-95 rounded-lg p-3 mt-3 mb-3'>
+							{currBin == LoadedBinaryState.CardReader &&
+								<strong>UID: {!rfid ? "N/A" : rfid}</strong>
+							}
+							{currBin != LoadedBinaryState.CardReader &&
+								<>
+									<strong>UID: </strong>
+									<input
+										type="text"
+										disabled={isLoading}
+										placeholder="enter UID..."
+										className="input bg-inherit focus:outline-none focus:ring-slate text-white placeholder-white px-3 rounded-lg"
+										onChange={e => { setRfid(e.target.value) }}
+										value={rfid}
+									/>
+								</>
+							}
+						</code>
 						<div className='flex flex-row items-center'>
 							<input
 								type="text"
 								disabled={isLoading}
 								placeholder="enter name..."
-								className="input bg-white text-dim-gray py-3 pl-3 pr-[3.75rem] m-3 rounded-lg"
+								className="input bg-white focus:outline-none focus:ring-slate text-dim-gray py-3 pl-3 pr-[3.75rem] m-3 rounded-lg"
 								onChange={e => { setName(e.target.value) }}
 							/>
 						</div>
@@ -245,16 +242,17 @@ export default function CreateCard() {
 								type={`${showPassword ? 'text' : 'password'}`}
 								disabled={isLoading}
 								placeholder="enter password..."
-								className="input bg-white text-dim-gray p-3 mb-3 rounded-l-lg"
+								className="input focus:outline-none focus:ring-slate bg-white text-dim-gray p-3 mb-3 rounded-l-lg"
 								onChange={e => { setPassword(e.target.value) }}
 							/>
 							<button
 								onClick={(e) => {
-									e.preventDefault();
 									setShowPassword(!showPassword);
+									e.preventDefault();
 								}}
+								type={"button"}
 								disabled={isLoading}
-								className="inline-flex text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white bg-white rounded-r-lg">
+								className="inline-flex focus:outline-none focus:ring-slate text-sm font-medium text-center items-center px-3 py-3 mb-3 text-white bg-white rounded-r-lg">
 								{showPassword ?
 									<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
 									:
@@ -262,27 +260,26 @@ export default function CreateCard() {
 								}
 							</button>
 						</div>
-					</form>
-					<div className="flex flex-row items-center justify-center">
+						<div className="flex flex-row items-center justify-center">
+							<label htmlFor="create-card-modal" className="btn btn-ghost">
+								{currBin != LoadedBinaryState.CardReader &&
+									<>
+										<button
+											onClick={onLoadReaderBin}
+											type={"button"}
+											className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#454444] rounded-lg text-[white] focus:ring-4 focus:outline-none focus:ring-[#454444]">Load Card Reader Binary
+										</button>
+									</>
+								}
+							</label>
+						</div>
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
 							<button
-								onClick={() => {
-									createCard(name, password);
-								}}
-								className="text-gray text-center p-3 m-3 bg-green-600 hover:bg-green-700 rounded-lg text-[white]">Create Card
+								type={"submit"}
+								className="text-gray text-center p-3 m-3 bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-[white]">Create Card
 							</button>
 						</label>
-						<label htmlFor="create-card-modal" className="btn btn-ghost">
-							{currBin != LoadedBinaryState.CardReader &&
-								<>
-									<button
-										onClick={onLoadReaderBin}
-										className="text-gray text-center p-3 m-3 transition duration-300 hover:scale-105 bg-[#454444] rounded-lg text-[white]">Load Card Reader Binary
-									</button>
-								</>
-							}
-						</label>
-					</div>
+					</form>
 					{(currBin == LoadedBinaryState.CardReader) &&
 						<div className="bg-[#8B89AC] rounded-lg p-6 mt-3">
 							<h1 className='select-none text-center text-white'><strong>Scan RFID card to input UID</strong></h1>
@@ -290,10 +287,8 @@ export default function CreateCard() {
 						</div>
 					}
 				</div>
-				{isLoading &&
-					<CommandTerminal className="p-6 flex w-auto text-left" commandObj={loadingBinaryCommand} enabled={isRunningCommand} />
-				}
 			</div >
+				<CommandTerminal className={`p-6 ${!isLoading && 'hidden'} flex w-auto text-left`} commandObj={loadingBinaryCommand} enabled={isRunningCommand} />
 		</>
 	)
 }

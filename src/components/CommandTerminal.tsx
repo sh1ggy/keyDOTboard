@@ -63,6 +63,7 @@ class CommandTerminal extends React.Component<IProps, IState> {
     }
 
     async componentDidMount() {
+        // this may err, if it occurs in prod need to resolve the promise by try catching and handle retry import if failed 
         const Terminal = (await import('xterm')).Terminal;
         const FitAddon = (await import('xterm-addon-fit')).FitAddon;
         // - xterm-addon-search 0.11.0
@@ -73,7 +74,7 @@ class CommandTerminal extends React.Component<IProps, IState> {
         // https://github.com/xtermjs/xterm.js/issues/2478
         // Maybe xterm isnt the best for this 
 
-        this.terminal = new Terminal();
+        this.terminal = new Terminal({ rows: 19 });
         const fit = new FitAddon();
         // const links = new WebLinksAddon();
         const ctrlc = new CtrlCXtermAddon();
@@ -145,7 +146,10 @@ class CommandTerminal extends React.Component<IProps, IState> {
     render() {
         return (
             // TODO: Only apply classname and relevant props or extract out commandObj
-            <div style={{ borderRadius: '0.5rem', backgroundColor: 'black', margin: '1.25rem' }} ref={this.termRef} className={this.props.className}>
+            // 
+            <div
+                ref={this.termRef}
+                className={`${this.props.className} !rounded-lg !bg-black !m-3 !max-h-96`}>
             </div>
         )
     }
