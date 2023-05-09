@@ -113,7 +113,7 @@ fn save_cards_to_csv(cards: Vec<Card>, config: Arc<Config>) -> Result<String, Bo
     let uid_count = cards.len();
 
     for (i, card) in cards.iter().enumerate() {
-        println!("card lol: {:?}", card);
+        // println!("card lol: {:?}", card);
 
         // let mut my_vector: Vec<&str> = Vec::new();
 
