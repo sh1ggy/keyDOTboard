@@ -25,7 +25,7 @@ export default function ActiveView() {
 
 			<div className="flex flex-col items-center bg-[#292828] h-full w-full justify-center">
 				<div className="justify-center text-4xl animate-pulse items-center rounded-lg text-green-700">
-					<strong>Loading login binary!</strong>
+					<strong>Loading key binary!</strong>
 				</div>
 				<CommandTerminal enabled={isRunningCommand} className="p-6 flex w-auto text-left" commandObj={getDataCommand} />
 			</div>

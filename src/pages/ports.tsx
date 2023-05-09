@@ -79,6 +79,7 @@ export default function PortSelection() {
 			}
 			else {
 				setError(`Invalid ESP32 port detected, please select a valid port to connect to.`);
+				router.push("/");
 			}
 			setRunningCommand(false);
 			return;
@@ -203,7 +204,7 @@ export default function PortSelection() {
 				<button
 					disabled={isRunningCommand}
 					onClick={proceedToCardsScreen}
-					className="flex text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-600 hover:bg-green-700 py-3">
+					className="flex disabled:bg-green-800 disabled:cursor-not-allowed disabled:text-slate text-sm p-3 font-medium text-center items-center justify-center w-screen text-white bg-green-600 hover:bg-green-700 py-3">
 					Connect To Device
 				</button>
 				<CommandTerminal enabled={isRunningCommand} className="p-6 flex w-auto bg-transparent" commandObj={getDataCommand} />

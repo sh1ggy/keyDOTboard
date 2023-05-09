@@ -64,6 +64,7 @@ class CommandTerminal extends React.Component<IProps, IState> {
     }
 
     async componentDidMount() {
+        // this may err, if it occurs in prod need to resolve the promise by try catching and handle retry import if failed 
         const Terminal = (await import('xterm')).Terminal;
         const FitAddon = (await import('xterm-addon-fit')).FitAddon;
         // - xterm-addon-search 0.11.0
@@ -129,7 +130,8 @@ class CommandTerminal extends React.Component<IProps, IState> {
     render() {
         return (
             // TODO: Only apply classname and relevant props or extract out commandObj
-            <div style={{borderRadius: '0.5rem', backgroundColor: 'black', margin: '1.25rem'}} ref={this.termRef} className={this.props.className}>
+            // {borderRadius: '0.5rem', backgroundColor: 'black', margin: '1.25rem'}
+            <div ref={this.termRef} className={this.props.className}>
             </div>
         )
     }

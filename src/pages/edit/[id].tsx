@@ -14,18 +14,9 @@ export default function EditView() {
 		let exitEarly = false;
 		setCards((prev) => {
 			const editCard: Card = {
-				name: name,
+				name: prev[i].name,
 				password: password,
 				rfid: prev[i].rfid,
-			}
-			const cardName = editCard.name;
-			for (const card of prev) {
-				if (cardName == card.name) {
-					console.log("dupe");
-					setError(`Duplicate card name ${cardName}`);
-					exitEarly = true;
-					return prev;
-				}
 			}
 			const tempCards = [...prev];
 			tempCards.splice(i, 1, editCard);
@@ -33,6 +24,7 @@ export default function EditView() {
 			return tempCards;
 		});
 		if (exitEarly) return;
+		router.push('/');
 	}
 
 	const setToast = useToast();
@@ -40,15 +32,12 @@ export default function EditView() {
 	const router = useRouter();
 
 	const index = parseInt(router.query.id as string);
-	const [name, setName] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const setError = useError();
 
 	useEffect(() => {
-		setName(cards[index].name);
 		setPassword(cards[index].password);
-
 	}, [cards])
 
 	return (
@@ -74,12 +63,9 @@ export default function EditView() {
 						}}
 						className="flex flex-col items-center"
 					>
-						<input
-							type='text'
-							placeholder={cards[index]?.name}
-							className="input w-full max-w-xs bg-[#747986] text-white text-dim-gray p-3 mb-3 border-neutral-300 rounded-lg"
-							onChange={e => { setName(e.target.value) }}
-						/>
+						<div className="input w-full max-w-xs bg-[#747986] text-white text-dim-gray p-3 mb-3 border-neutral-300 rounded-lg">
+							{cards[index].name}
+						</div>
 						<div className='flex flex-row items-center pb-3'>
 							<input
 								type={`${showPassword ? 'text' : 'password'}`}
@@ -91,6 +77,7 @@ export default function EditView() {
 								onClick={() => {
 									setShowPassword(!showPassword);
 								}}
+								type={"button"}
 								className="inline-flex text-sm font-medium text-center h-full items-center rounded-r-lg text-white bg-white p-3">
 								{showPassword ?
 									<img className='object-contain w-6 h-6 items-center' src={eyeOnIcon} />
@@ -102,7 +89,7 @@ export default function EditView() {
 						<label htmlFor="create-card-modal" className="btn btn-ghost">
 							<button
 								onClick={() => () => saveCard(index)}
-								className="text-gray text-center p-3 m-3 bg-green-700 hover:bg-green-800 rounded-lg text-[white]">Save Card
+								className="text-gray text-center p-3 m-3 bg-green-600 hover:bg-green-700 rounded-lg text-[white]">Save Card
 							</button>
 						</label>
 					</form>
