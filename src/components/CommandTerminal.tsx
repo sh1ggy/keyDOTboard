@@ -8,9 +8,11 @@ export interface IProps {
     className?: string;
     enabled: boolean;
     commandIdent?: string;
+    onLoaded?: () => Promise<void>;
 }
 export interface IState {
-
+    // missedInitialStart: boolean,
+    // terminalReady: boolean
 }
 
 class CtrlCXtermAddon implements ITerminalAddon {
@@ -58,9 +60,6 @@ class CommandTerminal extends React.Component<IProps, IState> {
 
         this.termRef = React.createRef();
 
-        this.state = {
-            input: "",
-        }
     }
 
     async componentDidMount() {
@@ -75,7 +74,7 @@ class CommandTerminal extends React.Component<IProps, IState> {
         // https://github.com/xtermjs/xterm.js/issues/2478
         // Maybe xterm isnt the best for this 
 
-        this.terminal = new Terminal({rows: 19});
+        this.terminal = new Terminal({ rows: 19 });
         const fit = new FitAddon();
         // const links = new WebLinksAddon();
         const ctrlc = new CtrlCXtermAddon();
@@ -87,16 +86,33 @@ class CommandTerminal extends React.Component<IProps, IState> {
         if (this.termRef.current) {
             this.terminal.open(this.termRef.current);
         }
+        else {
+            console.log("Element of terminal not rendered yet");
+        }
+        if (this.props.onLoaded) {
+            console.log("Running onLoaded function");
+            // Currently this doesnt fix the belated loading command issue 
+            // TODO: investigate
+            await this.props.onLoaded();
+        }
     }
 
     componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<{}>, snapshot?: any): void {
         if (!prevProps.enabled && this.props.enabled) {
+
+            // THis is because the component didmount is async and can possibly not finish by the time the parent says to run command
+            // if (!this.terminal) {
+            //     this.setState({ missedInitialStart: true });
+            //     debugger;
+            //     return;
+            // }
             this.startTerminalCommand();
         }
 
         if (prevProps.enabled && !this.props.enabled) {
             this.stopTerminalCommand();
         }
+
     }
 
     startTerminalCommand() {
@@ -124,7 +140,7 @@ class CommandTerminal extends React.Component<IProps, IState> {
 
     componentWillUnmount(): void {
         this.stopTerminalCommand();
-        this.terminal.dispose();
+        this.terminal?.dispose();
     }
 
     render() {

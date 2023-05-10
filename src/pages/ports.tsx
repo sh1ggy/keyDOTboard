@@ -91,10 +91,13 @@ export default function PortSelection() {
 
 		setToast(`Saved BinaryFile in: ${readFileBin}`);
 		setRunningCommand(false);
-		getDataCommand.current = Command.sidecar('bin/dist/analyze_nvs', [`${readFileBin}`, `-j`]);
+		// getDataCommand.current = Command.sidecar('bin/dist/analyze_nvs', [`${readFileBin}`, `-j`]);
+		// Saving this as non terminal because printing this will show the password to term
+		const analyzeBinCommand = Command.sidecar('bin/dist/analyze_nvs', [`${readFileBin}`, `-j`]);
 
 		setRunningCommand(true);
-		let analyzeRes = await getDataCommand.current.execute();
+		// let analyzeRes = await getDataCommand.current.execute();
+		let analyzeRes = await analyzeBinCommand.execute();
 		console.log({ res: analyzeRes });
 
 		if (analyzeRes.code != 0) {
@@ -142,6 +145,7 @@ export default function PortSelection() {
 			});
 		}
 
+		setToast("Finished Loading data from ESP!");
 		setCards(gottenCards);
 		setNewCards(gottenCards);
 
