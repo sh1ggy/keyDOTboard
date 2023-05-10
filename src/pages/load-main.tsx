@@ -82,7 +82,7 @@ export default function ActiveView() {
 				setError(`The port ${selectedPort} isn't available or is already in use by another process`);
 			}
 			else {
-				setError(`Code did not run successfully ${res.stderr}`);
+				setError(`Code did not run successfully`, `Error: ${res.stderr}`);
 			}
 			setRunningCommand(false);
 			return;
