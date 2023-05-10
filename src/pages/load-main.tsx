@@ -10,7 +10,7 @@ export default function ActiveView() {
 	const setToast = useToast();
 	const router = useRouter();
 	useEffect(() => {
-		setToast("Loading the key binary");
+		setToast("Loading the key binary...");
 
 		// C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\tools\esptool_py\3.0.0/esptool.exe --chip esp32 --port COM4 --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect 0xe000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/partitions/boot_app0.bin 0x1000 C:\Users\anhad\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/bin/bootloader_qio_80m.bin 0x10000 C:\Users\anhad\AppData\Local\Temp\arduino_build_422462/main_bt.ino.bin 0x8000 C:\Users\anhad\AppData\Local\Temp\arduino_build_422462/main_bt.ino.partitions.bin 
 

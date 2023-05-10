@@ -23,7 +23,7 @@ export function CardsView({ cardIndex, card }: CardsViewProps) {
 		})
 
 		if (await reflashPartition())
-			setToast("Card deleted");
+			setToast("Card deleted!");
 	}
 	const setToast = useToast();
 	const router = useRouter();

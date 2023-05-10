@@ -54,7 +54,7 @@ export default function PortSelection() {
 
 	const proceedToCardsScreen = async () => {
 		if (selectedPort == null) {
-			setError("Select a port first.");
+			setError("Select a port first");
 			return;
 		}
 
@@ -119,7 +119,7 @@ export default function PortSelection() {
 		}
 		const nameSpace = db['kb'];
 		if (!nameSpace) {
-			setError("No previous DB found of ESP, starting empty DB [Namespace KB not found].")
+			setError("No previous DB found of ESP, starting empty DB [Namespace KB not found]")
 			setCards([]);
 			setRunningCommand(false);
 			router.push("/");
