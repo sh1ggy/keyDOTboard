@@ -209,7 +209,7 @@ export default function PortSelection() {
 					disabled={isRunningCommand}
 					onClick={proceedToCardsScreen}
 					className="flex disabled:bg-green-800 disabled:cursor-not-allowed disabled:text-slate focus:ring-4 focus:outline-none focus:ring-green-300 text-sm p-3 font-medium text-center items-center justify-center w-full text-white bg-green-600 hover:bg-green-700 py-3">
-					Connect To Device
+					Connect to Device
 				</button>
 				<CommandTerminal enabled={isRunningCommand} className="p-6 flex w-auto bg-transparent" commandObj={getDataCommand} />
 			</div>
