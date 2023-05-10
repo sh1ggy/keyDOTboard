@@ -25,7 +25,7 @@ export default function ActiveView() {
 	}, []);
 
 	const loadMainBin = async () => {
-		setToast("Loading the key binary");
+		setToast("Loading the key binary...");
 		setRunningCommand(true);
 
 		const Command = (await import('@tauri-apps/api/shell')).Command;
@@ -89,13 +89,13 @@ export default function ActiveView() {
 		}
 
 		if (res.stderr !== "") {
-			setError("Error loading binary: " + res.stderr);
+			setError("Error loading binary", res.stderr);
 			setRunningCommand(false);
 			return;
 		}
 		setRunningCommand(false);
 		setCurrentBin(LoadedBinaryState.CardReader);
-		setToast("Successfully loaded the Key binary!!");
+		setToast("Successfully loaded the key binary!");
 
 		router.push("/");
 	}

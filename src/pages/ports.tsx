@@ -78,7 +78,7 @@ export default function PortSelection() {
 				Please hold down the BOOT button while the terminal is running commands, or while \`Serial port ${selectedPort}\` is showing`);
 			}
 			else {
-				setError(`Invalid ESP32 port detected, please select a valid port to connect to.`);
+				setError(`Invalid ESP32 port detected, please select a valid port to connect to`);
 				// router.push("/");
 			}
 			setRunningCommand(false);
@@ -145,7 +145,7 @@ export default function PortSelection() {
 			});
 		}
 
-		setToast("Finished Loading data from ESP!");
+		setToast("Finished loading data from ESP!");
 		setCards(gottenCards);
 		setNewCards(gottenCards);
 

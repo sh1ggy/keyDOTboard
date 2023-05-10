@@ -77,7 +77,7 @@ export default function CreateCard() {
 
 	const createCard = async (name: string, password: string) => {
 		if (rfid == "") {
-			setError("No RFID detected yet");
+			setError("RFID UID not detected");
 			return;
 		}
 		if (name == "") {
@@ -177,7 +177,7 @@ export default function CreateCard() {
 		}
 		console.log({ res });
 		setCurrentBin(LoadedBinaryState.CardReader);
-		setToast(`Loaded Card Reader binary, starting reader server`);
+		setToast(`Loaded CardReader binary, starting reader server`);
 		setRunningCommand(false);
 		setIsLoading(false);
 		await sleep(500);
