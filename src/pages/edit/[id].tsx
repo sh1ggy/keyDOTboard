@@ -64,7 +64,7 @@ export default function EditView() {
 						className="flex flex-col items-center"
 					>
 						<div className="input w-full max-w-xs bg-[#747986] text-white text-dim-gray p-3 mb-3 break-all border-neutral-300 rounded-lg">
-							<strong>Name: </strong>{cards[index].name}
+							<strong>Name: </strong>{cards[index]?.name}
 						</div>
 						<div className='flex flex-row items-center pb-3'>
 							<input
