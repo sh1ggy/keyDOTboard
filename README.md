@@ -24,6 +24,8 @@ This project was limited by scarce parts and limited ESP32 documentation, findin
 
 This error requires the user to hold down the boot button. The fix is to install a 10uF capacitor between EN and ground on your hardware configuration. 
 
+This seems to only have been encountered on my laptop regardless of if its running windows, or manjaro linux. This was tested with an esp32-wroom and an esp32s2 mini.
+
 This seems to be a common issue relating to inconsistency in some ESP modules where the RC delay on the EN signal is not sufficient which breaks the timing.
 
 **Related Articles**
@@ -50,6 +52,11 @@ This seems to be a common issue relating to inconsistency in some ESP modules wh
 	```
 	[55752] Archive not found: D:\keyDOTboard\src-tauri\bin\merged_dist\parttool-x86_64-pc-windows-msv
 	```
+
+### ESP binary configuration
+- Have to use pin 17(TX), 18(RX) for debug printing wehn using a HID device
+- assign these through uart1 in esp config, https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/linux-macos-setup.html#console-output-configuration
+- manually change these pins in the menuconfig
 
 ## References
 - [**Inspiration**](https://github.com/Jaycar-Electronics/RFID-Computer-Login)
